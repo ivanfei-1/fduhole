@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import auth
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
@@ -6,7 +6,7 @@ from django.contrib.auth.hashers import make_password, check_password
 from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseBadRequest
 
 
-from .utils import mail, ranstr
+from .utils import *
 from .models import *
 import logging
 # Create your views here.
@@ -91,18 +91,73 @@ def logout(request):
 
 @login_required
 def index(request):
-    discussions = []
-    post_pk = []
-    query = Discussion.objects.order_by('-date_updated')[:10]
-    for d in query:
-        discussions.append(d)
-        post_pk.append(d.first_post)
-    posts = Post.objects.filter(pk__in=post_pk)
-    data = zip(discussions, posts)
-    return render(request, 'hole/index.html', {'data': data})
+    # discussions = []
+    # post_pk = []
+    # query = Discussion.objects.order_by('-date_updated')[:10]
+    # for d in query:
+    #     discussions.append(d)
+    #     post_pk.append(d.first_post)
+    # posts = Post.objects.filter(pk__in=post_pk)
+    # data = zip(discussions, posts)
+    # return render(request, 'hole/index.html', {'data': data})
+    discussions = Discussion.objects.order_by('-date_updated')[:10]
+    return render(request, 'hole/index.html', {'discussions': discussions})
 
 @login_required
-def discussion(request, pk):
-    d = Discussion.objects.get(pk=pk)
+def discussion(request, discussion_id):
+    d = get_object_or_404(Discussion, pk=discussion_id)
     posts = d.post_set.order_by('date_created')[:10]
     return render(request, 'hole/discussion.html', {'posts': posts, 'discussion': d})
+
+@login_required
+def create_post(request, discussion_id, post_id=None):
+    if request.method == 'GET':
+        reply_to = None
+        if post_id : reply_to = get_object_or_404(Post, pk=post_id)
+        else: pass
+        return render(request, 'hole/create_post.html',{reply_to: reply_to})
+ 
+    if request.method == 'POST':
+        content = request.POST.get('content')
+        discussion = get_object_or_404(Discussion, pk=discussion_id)
+        mapping = discussion.mapping
+        realname = request.user.username
+        username = ''
+        if realname in mapping:
+            username = mapping[realname]
+        else:
+            while True:
+                rname = random_name()
+                if rname in mapping.values():
+                    continue
+                else:
+                    username = rname
+                    mapping[realname] = rname
+                    break
+        discussion.count = discussion.count + 1
+        discussion.save()
+        reply_to = None
+        if post_id : reply_to = get_object_or_404(Post, pk=post_id)
+        else: pass
+        post = Post(username=username, content=content, discussion_id=discussion_id, reply_to=reply_to)
+        post.save()
+        return redirect('hole:discussion', discussion_id=discussion_id)
+
+@login_required
+def create_discussion(request):
+    if request.method == 'GET':
+        return render(request, 'hole/create_discussion.html')
+    if request.method == 'POST':
+        # tag =
+        discussion = Discussion(count=0, mapping={})
+        discussion.save()
+        # create a post
+        content = request.POST.get('content')
+        anony_name = random_name()
+        post = Post(username=anony_name, content=content, discussion_id=discussion.pk)
+        post.save()
+        # save the discussion
+        discussion.mapping = {request.user.username : anony_name}
+        discussion.first_post = post
+        discussion.save()
+        return redirect('hole:index')

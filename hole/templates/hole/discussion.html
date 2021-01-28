@@ -1,7 +1,17 @@
 <body>
-    {{ discussion.pk }}{{ discussion.tag }}{{ discussion.date_created }}
+    树洞id：{{ discussion.pk }}
+    <!-- {{ discussion.tag }} -->
+    {{ discussion.date_created }}
     {% for post in posts %}
-    <p> {{ post.username }}{{ post.date_created }}</p>
-    <p>{{ post.content }}</p>
+        <p> {{ post.username }}{{ post.date_created }}</p>
+            {% if post.reply_to %}
+            回复：{{ post.reply_to.username}}{{ post.reply_to.date_created }}<br>
+            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;“{{ post.reply_to.content}}”<br>
+            {% endif %}
+        <p>{{ post.content }}</p>
+        <p><a href="{% url 'hole:reply_post' discussion.pk post.pk %}" target="_self">回复</a></p>
+        <br>
     {% endfor %}
+    <a href="{% url 'hole:create_post' discussion.pk %}" target="_self">发表回复</a>
+    <a href="{% url 'hole:index' %}" target="_self">回到首页</a>
 </body>

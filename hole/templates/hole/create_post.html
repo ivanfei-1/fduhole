@@ -1,0 +1,9 @@
+{% if post.reply_to %}
+“ {{ post.reply_to.username}}{{ post.reply_to.date_created }}<br>
+{{ post.reply_to.content}}”<br>
+{% endif %}
+<form action='' method='POST'>
+    {% csrf_token %}
+    <input type='text' name='content' placeholder='说些什么......' required>
+    <input type='submit' value='发表'>
+</form>

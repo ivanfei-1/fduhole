@@ -17,21 +17,20 @@ class Tag(models.Model):
 
 
 class Discussion(models.Model):
-    date_created = models.DateTimeField(auto_now_add=True)
-    date_updated = models.DateTimeField(auto_now=True,db_index=True)
     count = models.IntegerField()
     tag = models.ManyToManyField(Tag, blank=True)
     mapping = models.JSONField(null=True, blank=True)
-    first_post = models.IntegerField(null=True)
+    first_post = models.OneToOneField('Post', related_name='+', null=True, on_delete=models.SET_NULL) # on_delete null 需要进一步设置
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True,db_index=True)
     def __str__(self):
         return str(self.pk)
 
 class Post(models.Model):
     content = models.TextField()
     username = models.CharField(max_length=191)
-    date_created = models.DateTimeField(auto_now_add=True,db_index=True)
-    reply_to = models.IntegerField(null=True, blank=True)
-    # number = models.IntegerField(db_index=True)
+    reply_to = models.OneToOneField('Post', related_name='+', blank=True, null=True, on_delete=models.SET_NULL)
     discussion = models.ForeignKey(Discussion, on_delete=models.CASCADE)
+    date_created = models.DateTimeField(auto_now_add=True,db_index=True)
     def __str__(self):
         return str(self.pk)
