@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<head>
+    <title>自动填写平安复旦</title>
+    <meta char-set='utf-8'>
+</head>
+<body>
+    <p>自动填写平安复旦小程序，基于
+        <a href='https://github.com/shiyue2002/daily_fudan'>Github 源码</a>
+    </p>
+    <p>根据前一天提交的地理位置，每天中午12:00自动填报，如要更改位置信息请自行手动提交一次</p>
+    <p>用户名及密码均储存在本人的服务器中，不会有泄露的风险，请放心使用</p>
+    <p>
+        <form action={% url 'pafd:index' %} method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="提交">
+        </form>
+    </p>
+    {{ script | safe }}
+</body>

@@ -1,0 +1,7 @@
+<body>
+    {{ discussion.pk }}{{ discussion.tag }}{{ discussion.date_created }}
+    {% for post in posts %}
+    <p> {{ post.username }}{{ post.date_created }}</p>
+    <p>{{ post.content }}</p>
+    {% endfor %}
+</body>

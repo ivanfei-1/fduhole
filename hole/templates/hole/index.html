@@ -1,0 +1,7 @@
+<body>
+    {% for discussion, post in data %}
+    <p>{{ discussion.tag }} {{ post.username }}{{ post.date_created }}</p>
+    <p>{{ post.content }}</p>
+    {% endfor %}
+    <p>Hello World !</p>
+</body>
