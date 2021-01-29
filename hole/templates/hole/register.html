@@ -1,0 +1,28 @@
+<body>
+    <p>{{ message }}</p>
+
+    <form action='' method='POST'>
+        {% csrf_token %}
+        <table>
+            <tr>
+                <td><label>用户名：</td>
+                <td><input type="text" name="username" maxlength="191" required autocomplete="username"> </td></label>
+            </tr>
+            <tr>
+                <td><label>邮箱：</td>
+                <td><input type="email" name="email" maxlength="191" required placeholder="请使用允许的edu邮箱注册" autocomplete="email"> </td></label>
+            </tr>
+            <tr>
+                <td><label>密码： </td>
+                <td><input type="password" name="password" maxlength="191" minlength="8" required placeholder="8个字符或更多" autocomplete="new-password"> </td></label>
+            </tr>
+            <tr>
+                <td><label>验证密码： </td>
+                <td><input type="password" name="password2" maxlength="191" minlength="8" required autocomplete="new-password"> </td></label>
+            </tr>
+            <tr>
+                <td><input type="submit" value="注册"> </td>
+            </tr>
+        </table>
+    </form>
+</body>

@@ -1,0 +1,17 @@
+<head>
+    <title>FDU HOLE</title>
+</head>
+<body>
+    {% for discussion in discussions %}
+    <p>
+        <!-- {{ discussion.tag }} -->
+        树洞id：{{ discussion.pk }}
+        {{ discussion.date_created }}
+        回帖数： {{ discussion.count }}</p>
+    <p>{{ discussion.first_post.content }}</p>
+    <a href="{% url 'hole:discussion' discussion.pk %}" target="_self">查看</a>
+    <br><br>
+    {% endfor %}
+    <p><a href="{% url 'hole:create_discussion' %}" target="_self">发表树洞</a></p>
+    <p><a href="{% url 'hole:logout' %}" target="_self">登出</a></p>
+</body>
