@@ -37,7 +37,7 @@ DATABASES = {
         'NAME': 'django',
         'USER': 'django',
         'PASSWORD': detabase_password,
-        'HOST': 'localhost',
+        'HOST': database_host,
         'PORT': 3306
     }
 }

@@ -9,6 +9,8 @@ uwsgi = "*"
 mysqlclient = "*"
 gunicorn = "*"
 argon2-cffi = "*"
+lxml = "*"
+requests = "*"
 
 [dev-packages]
 
