@@ -16,5 +16,13 @@
         <br>
     {% endfor %}
     <a href="{% url 'hole:create_post' discussion.pk %}" target="_self">发表回复</a>
-    <a href="{% url 'hole:index' %}" target="_self">回到首页</a>
+
+    {% if previous_page %}
+        <a href="{% url 'hole:discussion_page' discussion.pk previous_page %}" target="_self">上一页</a>
+    {% endif %}
+    <a href="{% url 'hole:index' %}" target="_self">首页</a>
+    {% if next_page %}
+        <a href="{% url 'hole:discussion_page' discussion.pk next_page %}" target="_self">下一页</a>
+    {% endif %}
+
 </body>

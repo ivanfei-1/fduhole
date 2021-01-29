@@ -3,15 +3,24 @@
 </head>
 <body>
     {% for discussion in discussions %}
-    <p>
-        <!-- {{ discussion.tag }} -->
-        树洞id：{{ discussion.pk }}
-        {{ discussion.date_created }}
-        回帖数： {{ discussion.count }}</p>
-    <p>{{ discussion.first_post.content }}</p>
-    <a href="{% url 'hole:discussion' discussion.pk %}" target="_self">查看</a>
-    <br><br>
+        <p>
+            <!-- {{ discussion.tag }} -->
+            树洞id：{{ discussion.pk }}
+            {{ discussion.date_created }}
+            回帖数： {{ discussion.count }}</p>
+        <p>{{ discussion.first_post.content }}</p>
+        <a href="{% url 'hole:discussion' discussion.pk %}" target="_self">查看</a>
+        <br><br>    
     {% endfor %}
     <p><a href="{% url 'hole:create_discussion' %}" target="_self">发表树洞</a></p>
     <p><a href="{% url 'hole:logout' %}" target="_self">登出</a></p>
+
+    {% if previous_page %}
+        <a href="{% url 'hole:index_page' previous_page %}" target="_self">上一页</a>
+    {% endif %}
+    <a href="{% url 'hole:index' %}" target="_self">首页</a>
+    {% if next_page %}
+        <a href="{% url 'hole:index_page' next_page %}" target="_self">下一页</a>
+    {% endif %}
+    
 </body>

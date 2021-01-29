@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = secret_key
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', 'www.salve.cf','127.0.0.1']
 
@@ -37,7 +37,7 @@ DATABASES = {
         'NAME': 'django',
         'USER': 'django',
         'PASSWORD': detabase_password,
-        'HOST': database_host,
+        'HOST': 'localhost',
         'PORT': 3306
     }
 }
@@ -160,3 +160,5 @@ PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.Argon2PasswordHasher',
     'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
 ]
+
+INTERVAL = 10

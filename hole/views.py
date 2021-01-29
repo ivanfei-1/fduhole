@@ -4,7 +4,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password, check_password
 from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseBadRequest
-
+from django.conf import settings
 
 from .utils import *
 from .models import *
@@ -90,24 +90,29 @@ def logout(request):
     return redirect('hole:index')
 
 @login_required
-def index(request):
-    # discussions = []
-    # post_pk = []
-    # query = Discussion.objects.order_by('-date_updated')[:10]
-    # for d in query:
-    #     discussions.append(d)
-    #     post_pk.append(d.first_post)
-    # posts = Post.objects.filter(pk__in=post_pk)
-    # data = zip(discussions, posts)
-    # return render(request, 'hole/index.html', {'data': data})
-    discussions = Discussion.objects.order_by('-date_updated')[:10]
-    return render(request, 'hole/index.html', {'discussions': discussions})
+def index(request, page=1):
+    if page <= 0: return HttpResponseBadRequest()
+    interval = settings.INTERVAL
+    count = Discussion.objects.count()
+    discussions = Discussion.objects.order_by('-date_updated')[(page - 1) * interval + 1 : page * interval]
+    previous_page, next_page = None, None
+    if page > 1: previous_page = page - 1
+    if count > page * interval : next_page = page + 1
+    if not discussions: return Http404
+    return render(request, 'hole/index.html', {'discussions': discussions, 'previous_page': previous_page,'next_page': next_page})
 
 @login_required
-def discussion(request, discussion_id):
+def discussion(request, discussion_id, page=1):
+    if page <= 0: return HttpResponseBadRequest()
+    interval = settings.INTERVAL
     d = get_object_or_404(Discussion, pk=discussion_id)
-    posts = d.post_set.order_by('date_created')[:10]
-    return render(request, 'hole/discussion.html', {'posts': posts, 'discussion': d})
+    count = d.count
+    posts = d.post_set.order_by('date_created')[(page - 1) * interval + 1 : page * interval]
+    previous_page, next_page = None, None
+    if page > 1: previous_page = page - 1
+    if count > page * interval: next_page = page + 1
+    if not posts: return Http404
+    return render(request, 'hole/discussion.html', {'posts': posts, 'discussion': d, 'previous_page': previous_page,'next_page': next_page})
 
 @login_required
 def create_post(request, discussion_id, post_id=None):
