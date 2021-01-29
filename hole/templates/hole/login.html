@@ -1,3 +1,6 @@
+<head>
+    <title>登录</title>
+</head>
 <body>
     <form action='' method='POST'>
         {% csrf_token %}
@@ -15,4 +18,5 @@
             </tr>
         </table>
     </form>
+    <a href="{% url 'hole:register' %}" target="_self">注册</a>
 </body>

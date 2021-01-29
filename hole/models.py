@@ -24,7 +24,7 @@ class Discussion(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True,db_index=True)
     def __str__(self):
-        return str(self.pk)
+        return '#' + str(self.pk) + ' ' + self.first_post.content
 
 class Post(models.Model):
     content = models.TextField()
@@ -33,4 +33,4 @@ class Post(models.Model):
     discussion = models.ForeignKey(Discussion, on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True,db_index=True)
     def __str__(self):
-        return str(self.pk)
+        return '#' + str(self.pk) + ' ' + self.content
