@@ -1,28 +1,49 @@
-<body>
-    <p>{{ message }}</p>
+{% extends 'hole/base.html' %}
 
-    <form action='' method='POST'>
-        {% csrf_token %}
-        <table>
-            <tr>
-                <td><label>用户名：</td>
-                <td><input type="text" name="username" maxlength="191" required autocomplete="username"> </td></label>
-            </tr>
-            <tr>
-                <td><label>邮箱：</td>
-                <td><input type="email" name="email" maxlength="191" required placeholder="请使用允许的edu邮箱注册" autocomplete="email"> </td></label>
-            </tr>
-            <tr>
-                <td><label>密码： </td>
-                <td><input type="password" name="password" maxlength="191" minlength="8" required placeholder="8个字符或更多" autocomplete="new-password"> </td></label>
-            </tr>
-            <tr>
-                <td><label>验证密码： </td>
-                <td><input type="password" name="password2" maxlength="191" minlength="8" required autocomplete="new-password"> </td></label>
-            </tr>
-            <tr>
-                <td><input type="submit" value="注册"> </td>
-            </tr>
-        </table>
-    </form>
-</body>
+{% block title %}注册{% endblock title %}
+
+{% block css %}
+<style type="text/css">
+    .m-auto {padding: 60px 30px 15px 30px;}
+</style>
+{% endblock css %} 
+
+{% block body %}
+<div class="d-flex justify-content-center align-items-center text-center vh-100">
+    <div class="container ">
+        <div class="row">
+            <div class="col-9 col-sm-8 col-lg-6 col-xl-4 m-auto shadow-5-strong">
+                <p>{{ message }}</p>
+                <h1>欢迎注册</h1><br>
+                <form action='' method='POST'>
+                    {% csrf_token %}
+
+                    <div class="form-outline mb-4">
+                        <input type="text" class='form-control' name="username" id="username" maxlength="191" required autofocus autocomplete="username">
+                        <label for="username" class="form-label">用户名</label>
+                    </div>
+
+                    <div class="form-outline mb-4">
+                        <input type="email" class='form-control' name="email" id="email" maxlength="191" required autocomplete="email">
+                        <label for="email" class="form-label">edu邮箱</label>
+                    </div>
+
+                    <div class="form-outline mb-4"> 
+                        <input type="password" class='form-control' name="password" id="password" maxlength="191" minlength="8" required autocomplete="new-password">
+                        <label for="password" class="form-label">密码</label>
+                    </div>
+
+                    <div class="form-outline mb-4"> 
+                        <input type="password" class='form-control' name="password2" id="password2" maxlength="191" minlength="8" required autocomplete="new-password">
+                        <label for="password2" class="form-label">验证密码</label>
+                    </div>
+                   
+                    <button type="submit" class="btn btn-success btn-block">注册</button>
+                    
+                    <br>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock body %}

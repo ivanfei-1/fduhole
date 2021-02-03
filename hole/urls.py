@@ -1,4 +1,5 @@
-from django.urls import path
+from django.urls import path, include
+
 from . import views
 
 app_name = 'hole'
@@ -15,3 +16,10 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('verify/<str:code>/', views.verify, name='verify'),
 ]
+
+# router = DefaultRouter()
+# router.register('discussions', views.DiscussionsViewSet)
+
+# urlpatterns += [
+#     path('', include(router.urls)),
+# ]

@@ -1,18 +1,49 @@
-<head>
-    <title>FDU HOLE</title>
-</head>
-<body>
-    {% for discussion in discussions %}
-        <p>
-            <!-- {{ discussion.tag }} -->
-            树洞id：{{ discussion.pk }}
-            {{ discussion.date_created }}
-            回帖数： {{ discussion.count }}</p>
-        <p>{{ discussion.first_post.content }}</p>
-        <a href="{% url 'hole:discussion' discussion.pk %}" target="_self">查看</a>
-        <br><br>    
-    {% endfor %}
-    <p><a href="{% url 'hole:create_discussion' %}" target="_self">发表树洞</a></p>
+{% extends 'hole/base.html' %}
+
+{% block title %}FDU HOLE{% endblock title %}
+
+{% block css %}
+<style type="text/css">
+    .card{
+        border-radius: 1.5rem;
+    }
+</style>
+{% endblock css %}
+
+{% block body %}
+<div class="container">
+{% for discussion in discussions %}
+    <div class="row my-5">
+        <div class="col">
+            <div class="card w-100 hover-overlay shadow-5" >
+                <a href="{% url 'hole:discussion' discussion.pk %}">
+                    <div class="mask" style="background-color: rgba(211, 211, 211, 0.205)"></div>
+                </a>
+                <div class="card-header "> TAGS
+                    <!-- {{ discussion.tag }} -->
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        {{ discussion.first_post.content }}
+                    </p>
+                </div>
+                <div class="card-footer text-center">
+                    <span style="float:left">#{{ discussion.pk }}</span>
+                    <span style="float:inherit">{{ discussion.date_created }}</span>
+                    <span style="float:right">{{ discussion.count }} 回复</span>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+{% endfor %}
+    <div class="fixed-action-btn">
+        <a  class="btn btn-floating btn-success btn-lg " 
+            href="{% url 'hole:create_discussion' %}">
+        <i class="fas fa-pencil-alt"></i>
+        </a>
+    </div>
+
     <p><a href="{% url 'hole:logout' %}" target="_self">登出</a></p>
 
     {% if previous_page %}
@@ -22,5 +53,8 @@
     {% if next_page %}
         <a href="{% url 'hole:index_page' next_page %}" target="_self">下一页</a>
     {% endif %}
-    
-</body>
+
+</div>
+
+     
+{% endblock body %}

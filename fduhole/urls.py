@@ -18,6 +18,7 @@ from django.urls import include, path
 import hole.views
 
 urlpatterns = [
+    path('api/',include('hole.apiurls')),
     path('hole/',include('hole.urls')),
     path('', hole.views.index),
     path('pafd/',include('pafd.urls')),

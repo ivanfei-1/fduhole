@@ -1,0 +1,24 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.15.2/css/all.min.css">
+    <!-- <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/5.0.0-beta1/css/bootstrap.min.css"> -->
+    <link rel="stylesheet" href="https://cdn.staticfile.org/mdb-ui-kit/3.2.0/mdb.min.css">
+    <!-- <link rel="stylesheet" href="https://cdn.staticfile.org/mdbootstrap/4.19.1/css/mdb.min.css"> -->
+    {% block css %}{% endblock css %}
+</head>
+<body>
+    {% block body %}{% endblock body %}
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js"></script>
+    <!-- <script src="https://cdn.staticfile.org/popper.js/2.6.0/umd/popper.min.js"></script> -->
+    <!-- <script src="https://cdn.staticfile.org/twitter-bootstrap/5.0.0-beta1/js/bootstrap.min.js"></script> -->
+    <script src="https://cdn.staticfile.org/mdb-ui-kit/3.2.0/mdb.min.js"></script>
+    <!-- <script src="https://cdn.staticfile.org/mdbootstrap/4.19.1/js/mdb.min.js"></script> -->
+</body>
+
+</html>

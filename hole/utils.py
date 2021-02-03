@@ -1,14 +1,15 @@
 from django.core.mail import send_mail
 from smtplib import SMTPException
 import logging, random
+from django.conf import settings
 
 def mail(recipient, code, mode='register'):
-    domain = 'http://127.0.0.1:8000'
+    domain = 'https://www.fduhole.tk/api/'
     try:
         if mode == 'register':
             send_mail(
                 subject='FDUHOLE 注册验证',
-                message='欢迎注册 FDUHOLE，请点击以下链接以继续  ' + domain + '/hole/verify/' + code + '\r\n如果您意外地收到了此邮件，请忽略它',
+                message='欢迎注册 FDUHOLE，请点击以下链接以继续  ' + domain + 'verify/?code=' + code + '\r\n如果您意外地收到了此邮件，请忽略它',
                 from_email='fduhole@gmail.com',
                 recipient_list=[recipient],
                 fail_silently=False,
@@ -16,14 +17,14 @@ def mail(recipient, code, mode='register'):
         if mode == 'change_password':
             send_mail(
                 subject='FDUHOLE 修改密码验证',
-                message='请点击以下链接以继续  ' + domain + '/hole/verify/' + code + '\r\n如果您意外地收到了此邮件，请忽略它',
+                message='请点击以下链接以继续  ' + domain + 'verify/?code=' + code + '\r\n如果您意外地收到了此邮件，请忽略它',
                 from_email='fduhole@gmail.com',
                 recipient_list=[recipient],
                 fail_silently=False,
             )
+        return {'msg': '发送成功！', 'data': 0}
     except SMTPException as e:
-        logging.error('SMTP exception')
-        logging.error('邮件发送错误，收件人：{}，令牌码：{}，模式：{}，错误信息：{}'.format(recipient, code, mode, e))
+        return {'msg': '邮件发送错误，收件人：{}，令牌码：{}，模式：{}，错误信息：{}'.format(recipient, code, mode, e), 'data': -1}
 
 
 def random_name():

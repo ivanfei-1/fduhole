@@ -1,22 +1,55 @@
-<head>
-    <title>登录</title>
-</head>
-<body>
-    <form action='' method='POST'>
-        {% csrf_token %}
-        <table>
-            <tr>
-                <td><label>用户名：</td>
-                <td><input type="text" name="username" maxlength="191" required autocomplete="username"> </td></label>
-            </tr>
-            <tr>
-                <td><label>密码： </td>
-                <td><input type="password" name="password" maxlength="191" minlength="8" required autocomplete="new-password"> </td></label>
-            </tr>
-            <tr>
-                <td><input type="submit" value="登录"> </td>
-            </tr>
-        </table>
-    </form>
-    <a href="{% url 'hole:register' %}" target="_self">注册</a>
-</body>
+{% extends 'hole/base.html' %}
+{% load static %}
+
+{% block title %}登录{% endblock title %}
+
+{% block css %}
+<style type="text/css">
+    body {
+        background-image: url("{% static 'hole/img/background.jpeg' %}") ;
+        background-size: cover;
+        background-position: center 0; 
+        background-repeat: no-repeat;
+        background-attachment: fixed; 
+    }
+    .m-auto {
+        padding: 60px 30px 15px 30px;
+        background-color: #e9e9e9bd;
+    }
+    h1 {
+        color: #5a5a5a
+    }
+</style>
+{% endblock css %}
+{% block body %}
+<div class="d-flex justify-content-center align-items-center text-center vh-100">
+    <div class="container ">
+        <div class="row">
+            <div class="col-9 col-sm-8 col-lg-6 col-xl-4 m-auto shadow-5-strong">
+                <h1>FDUHOLE</h1><br>
+                <form action='' method='POST'>
+                    {% csrf_token %}
+
+                    <div class="form-outline mb-4">
+                        <input type="text" class='form-control' name="username" id="username" required autofocus autocomplete="username">
+                        <label for="username" class="form-label">用户名</label>
+                    </div>
+
+                    <div class="form-outline mb-4"> 
+                        <input type="password" class='form-control' name="password" id="password" maxlength="191" minlength="8" required autocomplete="current-password">
+                        <label for="password" class="form-label">密码</label>
+                    </div>
+                  
+                    <button type="submit" class="btn btn-primary btn-block mb-4 ">登录</button>
+               
+                    <p><a href="{% url 'hole:register' %}" target="_self">没有账号？点此注册</a></p>
+                    <p><a href="#" onclick="alert('活该！');" target="_self" id="forget_password">忘记密码</a></p>
+                    
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock body %}

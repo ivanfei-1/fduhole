@@ -3,13 +3,13 @@ from django.contrib import auth
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password, check_password
-from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseBadRequest
+from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseBadRequest, JsonResponse
 from django.conf import settings
 
 from .utils import *
 from .models import *
 import logging
-# Create your views here.
+
 def register(request, message=''):
     if request.method == 'GET':
         return render(request, 'hole/register.html')
@@ -26,8 +26,7 @@ def register(request, message=''):
 
         # check email domain
         domain = email[email.find('@')+1:]
-        whitelist = ['fudan.edu.cn']
-        if not domain in whitelist:
+        if not domain in settings.WHITELIST:
             message = '请使用edu邮箱注册！'
             return render(request, 'hole/register.html', {'message': message})
 
@@ -94,7 +93,7 @@ def index(request, page=1):
     if page <= 0: return HttpResponseBadRequest()
     interval = settings.INTERVAL
     count = Discussion.objects.count()
-    discussions = Discussion.objects.order_by('-date_updated')[(page - 1) * interval + 1 : page * interval]
+    discussions = Discussion.objects.order_by('-date_updated')[(page - 1) * interval : page * interval]
     previous_page, next_page = None, None
     if page > 1: previous_page = page - 1
     if count > page * interval : next_page = page + 1
@@ -107,12 +106,13 @@ def discussion(request, discussion_id, page=1):
     interval = settings.INTERVAL
     d = get_object_or_404(Discussion, pk=discussion_id)
     count = d.count
-    posts = d.post_set.order_by('date_created')[(page - 1) * interval + 1 : page * interval]
+    posts = d.post_set.order_by('date_created')[(page - 1) * interval : page * interval]
     previous_page, next_page = None, None
     if page > 1: previous_page = page - 1
     if count > page * interval: next_page = page + 1
+    count = (page - 1) * 10
     if not posts: return Http404
-    return render(request, 'hole/discussion.html', {'posts': posts, 'discussion': d, 'previous_page': previous_page,'next_page': next_page})
+    return render(request, 'hole/discussion.html', {'posts': posts, 'discussion': d, 'previous_page': previous_page,'next_page': next_page, 'count': count})
 
 @login_required
 def create_post(request, discussion_id, post_id=None):

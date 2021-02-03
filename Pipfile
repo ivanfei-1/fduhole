@@ -11,6 +11,8 @@ gunicorn = "*"
 argon2-cffi = "*"
 lxml = "*"
 requests = "*"
+django-rest-framework = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 

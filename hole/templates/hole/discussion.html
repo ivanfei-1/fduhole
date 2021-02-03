@@ -1,28 +1,63 @@
-<head>
-    <title>树洞#{{discussion.pk}}</title>
-</head>
-<body>
+{% extends 'hole/base.html' %}
+
+{% block title %}树洞#{{discussion.pk}}{% endblock title %}
+
+{% block body %}
+<div class="container">
     树洞#{{ discussion.pk }}
     <!-- {{ discussion.tag }} -->
     {{ discussion.date_created }}
-    {% for post in posts %}
-        <p> {{ post.username }}{{ post.date_created }}</p>
-            {% if post.reply_to %}
+{% for post in posts %}
+    <div class="row my-5">
+        <div class="col">
+            <div class="card ripple w-100 hover-overlay shadow-5">
+                <a href="{% url 'hole:reply_post' discussion.pk post.pk %}">
+                    <div class="mask" style="background-color: rgba(211, 211, 211, 0.205)"></div>
+                </a>
+                <div class="card-header ">
+                    {{ post.username }}
+                </div>
+                <div class="card-body">
+                    {% if post.reply_to %}
             回复：{{ post.reply_to.username}}{{ post.reply_to.date_created }}<br>
             &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;“{{ post.reply_to.content}}”<br>
             {% endif %}
-        <p>{{ post.content }}</p>
-        <p><a href="{% url 'hole:reply_post' discussion.pk post.pk %}" target="_self">回复</a></p>
-        <br>
-    {% endfor %}
-    <a href="{% url 'hole:create_post' discussion.pk %}" target="_self">发表回复</a>
-
-    {% if previous_page %}
+                    <p class="card-text">
+                        {{ post.content }}
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <span style="float:left">#{{ count|add:forloop.counter }}</span>
+                    <span style="float:right"> {{ post.date_created }}</span>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+{% endfor %}
+    <div class="fixed-action-btn ">
+        <a  class="btn btn-floating btn-primary btn-lg d-flex align-items-center justify-content-center" 
+            href="{% url 'hole:create_post' discussion.pk %}">
+        <i class="fas fa-paper-plane"></i>
+        </a>
+        <!-- <ul class="list-unstyled">
+        <li>
+            <a
+            class="btn btn-primary btn-floating btn-lg"
+            style="background-color: #f44336"
+            ><i class="fas fa-star"></i
+            ></a>
+        </li>
+        </ul> -->
+    </div>
+{% if previous_page %}
         <a href="{% url 'hole:discussion_page' discussion.pk previous_page %}" target="_self">上一页</a>
     {% endif %}
     <a href="{% url 'hole:index' %}" target="_self">首页</a>
     {% if next_page %}
         <a href="{% url 'hole:discussion_page' discussion.pk next_page %}" target="_self">下一页</a>
     {% endif %}
+</div>
+ 
 
-</body>
+{% endblock body %}
