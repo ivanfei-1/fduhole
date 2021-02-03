@@ -11,7 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
 class ReplyToSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = '__all__'
+        fields = '__all__' 
 
 class PostSerializer(serializers.ModelSerializer):
     reply_to = ReplyToSerializer()

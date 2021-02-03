@@ -1,0 +1,108 @@
+Date : 2021-02-03 19:21:52
+Directory : /home/shi/fduhole
+Total : 68 files,  1956 codes, 0 comments, 383 blanks, all 2339 lines
+
+Languages
++-------------+------------+------------+------------+------------+------------+
+| language    | files      | code       | comment    | blank      | total      |
++-------------+------------+------------+------------+------------+------------+
+| MagicPython |         53 |      1,353 |          0 |        333 |      1,686 |
+| Django HTML |         13 |        322 |          0 |         45 |        367 |
+| JSON        |          1 |        264 |          0 |          1 |        265 |
+| toml        |          1 |         17 |          0 |          4 |         21 |
++-------------+------------+------------+------------+------------+------------+
+
+Directories
++--------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                         | files      | code       | comment    | blank      | total      |
++--------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                            |         68 |      1,956 |          0 |        383 |      2,339 |
+| fduhole                                                      |          5 |        197 |          0 |         63 |        260 |
+| hole                                                         |         31 |        947 |          0 |        192 |      1,139 |
+| hole/migrations                                              |         12 |        219 |          0 |         68 |        287 |
+| hole/templates                                               |          7 |        240 |          0 |         37 |        277 |
+| hole/templates/hole                                          |          7 |        240 |          0 |         37 |        277 |
+| pafd                                                         |         16 |        360 |          0 |         71 |        431 |
+| pafd/migrations                                              |          3 |         31 |          0 |         14 |         45 |
+| pafd/templates                                               |          3 |         56 |          0 |          3 |         59 |
+| pafd/templates/pafd                                          |          3 |         56 |          0 |          3 |         59 |
+| polls                                                        |         12 |        147 |          0 |         46 |        193 |
+| polls/migrations                                             |          2 |         26 |          0 |          8 |         34 |
+| polls/templates                                              |          3 |         26 |          0 |          5 |         31 |
+| polls/templates/polls                                        |          3 |         26 |          0 |          5 |         31 |
++--------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++--------------------------------------------------------------+-------------+------------+------------+------------+------------+
+| filename                                                     | language    | code       | comment    | blank      | total      |
++--------------------------------------------------------------+-------------+------------+------------+------------+------------+
+| /home/shi/fduhole/Pipfile                                    | toml        |         17 |          0 |          4 |         21 |
+| /home/shi/fduhole/Pipfile.lock                               | JSON        |        264 |          0 |          1 |        265 |
+| /home/shi/fduhole/fduhole/__init__.py                        | MagicPython |          0 |          0 |          1 |          1 |
+| /home/shi/fduhole/fduhole/asgi.py                            | MagicPython |         10 |          0 |          7 |         17 |
+| /home/shi/fduhole/fduhole/settings.py                        | MagicPython |        151 |          0 |         44 |        195 |
+| /home/shi/fduhole/fduhole/urls.py                            | MagicPython |         25 |          0 |          3 |         28 |
+| /home/shi/fduhole/fduhole/wsgi.py                            | MagicPython |         11 |          0 |          8 |         19 |
+| /home/shi/fduhole/hole/__init__.py                           | MagicPython |          0 |          0 |          1 |          1 |
+| /home/shi/fduhole/hole/admin.py                              | MagicPython |          7 |          0 |          0 |          7 |
+| /home/shi/fduhole/hole/api.py                                | MagicPython |        201 |          0 |         39 |        240 |
+| /home/shi/fduhole/hole/apiurls.py                            | MagicPython |         10 |          0 |          1 |         11 |
+| /home/shi/fduhole/hole/apps.py                               | MagicPython |          3 |          0 |          3 |          6 |
+| /home/shi/fduhole/hole/hashers.py                            | MagicPython |          3 |          0 |          2 |          5 |
+| /home/shi/fduhole/hole/migrations/0001_initial.py            | MagicPython |         18 |          0 |          7 |         25 |
+| /home/shi/fduhole/hole/migrations/0002_auto_20210126_1001.py | MagicPython |         17 |          0 |          6 |         23 |
+| /home/shi/fduhole/hole/migrations/0003_auto_20210126_1143.py | MagicPython |         43 |          0 |          6 |         49 |
+| /home/shi/fduhole/hole/migrations/0004_auto_20210126_2001.py | MagicPython |         18 |          0 |          6 |         24 |
+| /home/shi/fduhole/hole/migrations/0005_auto_20210126_2001.py | MagicPython |         13 |          0 |          6 |         19 |
+| /home/shi/fduhole/hole/migrations/0006_auto_20210126_2007.py | MagicPython |         13 |          0 |          6 |         19 |
+| /home/shi/fduhole/hole/migrations/0007_auto_20210126_2138.py | MagicPython |         18 |          0 |          6 |         24 |
+| /home/shi/fduhole/hole/migrations/0008_auto_20210128_1959.py | MagicPython |         23 |          0 |          6 |         29 |
+| /home/shi/fduhole/hole/migrations/0009_auto_20210128_2156.py | MagicPython |         23 |          0 |          6 |         29 |
+| /home/shi/fduhole/hole/migrations/0010_auto_20210128_2214.py | MagicPython |         19 |          0 |          6 |         25 |
+| /home/shi/fduhole/hole/migrations/0011_auto_20210128_2222.py | MagicPython |         14 |          0 |          6 |         20 |
+| /home/shi/fduhole/hole/migrations/__init__.py                | MagicPython |          0 |          0 |          1 |          1 |
+| /home/shi/fduhole/hole/models.py                             | MagicPython |         31 |          0 |          6 |         37 |
+| /home/shi/fduhole/hole/serializer.py                         | MagicPython |         32 |          0 |          6 |         38 |
+| /home/shi/fduhole/hole/templates/hole/base.html              | Django HTML |         23 |          0 |          1 |         24 |
+| /home/shi/fduhole/hole/templates/hole/create_discussion.html | Django HTML |          9 |          0 |          2 |         11 |
+| /home/shi/fduhole/hole/templates/hole/create_post.html       | Django HTML |         13 |          0 |          2 |         15 |
+| /home/shi/fduhole/hole/templates/hole/discussion.html        | Django HTML |         58 |          0 |          5 |         63 |
+| /home/shi/fduhole/hole/templates/hole/index.html             | Django HTML |         51 |          0 |          9 |         60 |
+| /home/shi/fduhole/hole/templates/hole/login.html             | Django HTML |         46 |          0 |          9 |         55 |
+| /home/shi/fduhole/hole/templates/hole/register.html          | Django HTML |         40 |          0 |          9 |         49 |
+| /home/shi/fduhole/hole/tests.py                              | MagicPython |          2 |          0 |          2 |          4 |
+| /home/shi/fduhole/hole/urls.py                               | MagicPython |         21 |          0 |          4 |         25 |
+| /home/shi/fduhole/hole/utils.py                              | MagicPython |         29 |          0 |          3 |         32 |
+| /home/shi/fduhole/hole/views.py                              | MagicPython |        149 |          0 |         20 |        169 |
+| /home/shi/fduhole/manage.py                                  | MagicPython |         18 |          0 |          5 |         23 |
+| /home/shi/fduhole/pafd/__init__.py                           | MagicPython |          0 |          0 |          1 |          1 |
+| /home/shi/fduhole/pafd/admin.py                              | MagicPython |          4 |          0 |          1 |          5 |
+| /home/shi/fduhole/pafd/api.py                                | MagicPython |         21 |          0 |          2 |         23 |
+| /home/shi/fduhole/pafd/apps.py                               | MagicPython |          3 |          0 |          3 |          6 |
+| /home/shi/fduhole/pafd/forms.py                              | MagicPython |         20 |          0 |          6 |         26 |
+| /home/shi/fduhole/pafd/fudan.py                              | MagicPython |        161 |          0 |         27 |        188 |
+| /home/shi/fduhole/pafd/migrations/0001_initial.py            | MagicPython |         18 |          0 |          7 |         25 |
+| /home/shi/fduhole/pafd/migrations/0002_auto_20210124_1159.py | MagicPython |         13 |          0 |          6 |         19 |
+| /home/shi/fduhole/pafd/migrations/__init__.py                | MagicPython |          0 |          0 |          1 |          1 |
+| /home/shi/fduhole/pafd/models.py                             | MagicPython |          8 |          0 |          5 |         13 |
+| /home/shi/fduhole/pafd/templates/pafd/index.html             | Django HTML |         20 |          0 |          1 |         21 |
+| /home/shi/fduhole/pafd/templates/pafd/invalid.html           | Django HTML |         18 |          0 |          1 |         19 |
+| /home/shi/fduhole/pafd/templates/pafd/validated.html         | Django HTML |         18 |          0 |          1 |         19 |
+| /home/shi/fduhole/pafd/tests.py                              | MagicPython |          2 |          0 |          2 |          4 |
+| /home/shi/fduhole/pafd/urls.py                               | MagicPython |         11 |          0 |          2 |         13 |
+| /home/shi/fduhole/pafd/views.py                              | MagicPython |         43 |          0 |          5 |         48 |
+| /home/shi/fduhole/polls/__init__.py                          | MagicPython |          0 |          0 |          1 |          1 |
+| /home/shi/fduhole/polls/admin.py                             | MagicPython |          3 |          0 |          1 |          4 |
+| /home/shi/fduhole/polls/apps.py                              | MagicPython |          3 |          0 |          3 |          6 |
+| /home/shi/fduhole/polls/migrations/0001_initial.py           | MagicPython |         26 |          0 |          7 |         33 |
+| /home/shi/fduhole/polls/migrations/__init__.py               | MagicPython |          0 |          0 |          1 |          1 |
+| /home/shi/fduhole/polls/models.py                            | MagicPython |         17 |          0 |          7 |         24 |
+| /home/shi/fduhole/polls/templates/polls/detail.html          | Django HTML |         10 |          0 |          2 |         12 |
+| /home/shi/fduhole/polls/templates/polls/index.html           | Django HTML |          9 |          0 |          0 |          9 |
+| /home/shi/fduhole/polls/templates/polls/results.html         | Django HTML |          7 |          0 |          3 |         10 |
+| /home/shi/fduhole/polls/tests.py                             | MagicPython |         29 |          0 |          7 |         36 |
+| /home/shi/fduhole/polls/urls.py                              | MagicPython |          9 |          0 |          3 |         12 |
+| /home/shi/fduhole/polls/views.py                             | MagicPython |         34 |          0 |         11 |         45 |
+| /home/shi/fduhole/test.py                                    | MagicPython |          6 |          0 |          1 |          7 |
+| Total                                                        |             |      1,956 |          0 |        383 |      2,339 |
++--------------------------------------------------------------+-------------+------------+------------+------------+------------+
