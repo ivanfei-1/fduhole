@@ -8,6 +8,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = '__all__'
 
+
 class ReplyToSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
@@ -24,11 +25,18 @@ class PostSerializer(serializers.ModelSerializer):
     # # discussion = serializers.ForeignKey(Discussion, on_delete=serializers.CASCADE)
     # date_created = serializers.DateTimeField(required=False)
 
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = '__all__'
+
 class DiscussionSerializer(serializers.ModelSerializer):
     first_post = PostSerializer()
+    tag = TagSerializer(many=True)
     class Meta:
         model = Discussion
         fields = '__all__'
+        depth = 1
     # count = serializers.IntegerField()
     # # tag = serializers.ManyToManyField(Tag, blank=True)
     # mapping = serializers.JSONField(required=False)

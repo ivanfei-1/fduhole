@@ -14,6 +14,7 @@ from rest_framework.authtoken.models import Token
 from .utils import *
 from .models import *
 from .serializer import *
+import logging
 
 class RegisterView(APIView):
     '''
@@ -37,8 +38,11 @@ class RegisterView(APIView):
             email
         Returns: 
             data: 
-                0 : 发送成功
                 -1: 发送失败
+                0 : 发送成功
+                1: 用户名已注册
+                2: 邮箱已注册
+                3: 邮箱不在白名单内
             msg
     
     '''
@@ -47,6 +51,7 @@ class RegisterView(APIView):
         username = request.query_params.get('username')
         email = request.query_params.get('email')
 
+        # 检查用户名是否已注册
         if username:
             if User.objects.filter(username=username):
                 return Response({'data': 1, 'msg': '该用户名已注册！'})
@@ -63,9 +68,23 @@ class RegisterView(APIView):
             return Response({'data': 0, 'msg': '该邮箱未注册！'})
 
     def post(self, request):
+        # 获取数据
         username = request.data.get('username')
         password = request.data.get('password')
         email = request.data.get('email')
+
+        # 检查用户名是否已注册
+        if User.objects.filter(username=username):
+            return Response({'data': 1, 'msg': '该用户名已注册！'})
+        
+        # 检查邮箱是否在白名单内
+        domain = email[email.find('@')+1:]
+        if not domain in settings.WHITELIST: return Response({'data': 3, 'msg': '邮箱不在白名单内！'})
+
+        # 检查邮箱是否已注册
+        for u in User.objects.all():
+                if check_password(email, u.first_name):
+                    return Response({'data': 2, 'msg': '该邮箱已注册！'})
 
         code = make_password(username)
         temp = TempUser(username=username, password=password, email=email, code=code)
@@ -143,7 +162,7 @@ class DiscussionsView(APIView):
         '''
         page = int(request.query_params.get('page'))
         interval = settings.INTERVAL
-        count = Discussion.objects.count()
+
         discussions = Discussion.objects.order_by('-date_updated')[(page - 1) * interval : page * interval]
 
         serializer = DiscussionSerializer(discussions, many=True)
@@ -151,16 +170,25 @@ class DiscussionsView(APIView):
 
     def post(self, request):
         '''
-        新增一个discussion，创建一个discussion对象和它的第一个post对象
+        新增一个discussion。新增 discussion 的第一个 post 和若干 tag 并将其绑定到 discussion
         url:  /hole/discussions/
         Args:
-            text: content 
+            content  文本
+            tags     字符串数组
         Returns:
             该discussion
         '''
-         # tag =
+        # 创建discussion， 创建tag并添加至discussion
         discussion = Discussion(count=0, mapping={})
         discussion.save()
+
+        tags = request.data.get('tags')
+        for tag in tags:
+            logging.error(tag)
+            tag = Tag(name=tag, count=1, color=random_color())  # tag 的颜色为随机的 material design 标准主色   eg.'red'
+            tag.save()
+            discussion.tag.add(tag)
+            logging.error(tag)
 
         # create a post
         content = request.data.get('content')

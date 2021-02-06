@@ -2,16 +2,17 @@ from django.db import models
 
 # Create your models here.
 class TempUser(models.Model):
-    username = models.CharField(max_length=191)
-    password = models.CharField(max_length=191)
-    email = models.EmailField(max_length=191, primary_key=True)
+    username = models.CharField(max_length=32)
+    password = models.CharField(max_length=32)
+    email = models.EmailField(max_length=32, primary_key=True)
     code = models.CharField(max_length=191)
     def __str__(self):
         return self.email + ':' + self.username
 
 class Tag(models.Model):
-    name = models.CharField(max_length=191, primary_key=True)
-    count = models.IntegerField(db_index=True)
+    name = models.CharField(max_length=32, primary_key=True)
+    count = models.IntegerField(db_index=True, default='0')
+    color = models.CharField(max_length=32, default='blue')
     def __str__(self):
         return self.name
 
