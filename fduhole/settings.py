@@ -128,7 +128,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'fduhole/static')
+# STATIC_ROOT = os.path.join(BASE_DIR, 'fduhole/static')
+STATIC_ROOT = '/home/shi/static'
 
 ''' 第三方插件配置 '''
 
