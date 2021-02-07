@@ -151,7 +151,7 @@ class LoginView(APIView):
             return Response({'msg': '%s 已登出！' % username})
 
 class DiscussionsView(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         '''
@@ -210,9 +210,9 @@ class PostsView(APIView):
     def get(self, request):
         '''
         获取某一discussion的posts，用于discussion页面，分页
-        url:  /hole/posts/
+        url:  /api/posts/
         Args:
-            int: discussion_id
+            int: id
             int: page
         '''
         discussion_id = int(request.query_params.get('id'))
@@ -228,7 +228,7 @@ class PostsView(APIView):
     def post(self, request):
         '''
         新增某一discussion下的post
-        url:  /hole/posts/
+        url:  /api/posts/
         Args:
             text: content 
             int : discussion_id
@@ -240,6 +240,9 @@ class PostsView(APIView):
         discussion_id = request.data.get('discussion_id')
         post_id = request.data.get('post_id')
         
+        if not content: return Response({'msg': '内容不能为空！'}, status=status.HTTP_400_BAD_REQUEST)
+        if not discussion_id: return Response({'msg': 'discussion id 不能为空！'}, status=status.HTTP_400_BAD_REQUEST)
+
         discussion = get_object_or_404(Discussion, pk=discussion_id)
         mapping = discussion.mapping
         realname = request.user.username
@@ -265,4 +268,17 @@ class PostsView(APIView):
         post.save()
 
         serializer = PostSerializer(post)
+        return Response(serializer.data)
+
+class TagsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        '''
+        获取全部的 tags
+        URL: /api/tags/
+        Args: 无
+        '''
+        tags = Tag.objects.all()
+        serializer = TagSerializer(tags, many=True)
         return Response(serializer.data)

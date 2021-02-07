@@ -29,6 +29,7 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = '__all__'
+        depth = 1
 
 class DiscussionSerializer(serializers.ModelSerializer):
     first_post = PostSerializer()
