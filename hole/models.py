@@ -10,7 +10,7 @@ class TempUser(models.Model):
         return self.email + ':' + self.username
 
 class Tag(models.Model):
-    name = models.CharField(max_length=32, primary_key=True)
+    name = models.CharField(max_length=8, primary_key=True)
     count = models.IntegerField(db_index=True, default='0')
     color = models.CharField(max_length=32, default='blue')
     def __str__(self):
@@ -25,7 +25,7 @@ class Discussion(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True,db_index=True)
     def __str__(self):
-        return '#' + str(self.pk) + ' ' + self.first_post.content
+        return '#' + str(self.pk) + ' ' + self.first_post.content[:100]
 
 class Post(models.Model):
     content = models.TextField()
@@ -34,4 +34,4 @@ class Post(models.Model):
     discussion = models.ForeignKey(Discussion, on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True,db_index=True)
     def __str__(self):
-        return '#' + str(self.pk) + ' ' + self.content
+        return '#' + str(self.pk) + ' ' + self.content[:100]

@@ -151,14 +151,35 @@ class LoginView(APIView):
             return Response({'msg': '%s 已登出！' % username})
 
 class DiscussionsView(APIView):
+    '''
+    Returns: Discussion
+        count: 0
+        date_created: "1970-01-01T08:00:00.000000+08:00"
+        date_updated: "2021-02-08T11:47:26.415943+08:00"
+        first_post: Post
+            content: "Lorem ipsum dolor sit amet ..."
+            discussion: 24
+            id: 55
+            reply_to: null
+            username: "bar"
+        id: 25
+        mapping: {foo: "bar"}
+        tag: Array(3)
+            0:
+                color: "deep-orange"
+                count: 1
+                name: "tag1"
+    '''
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         '''
         获取首页展示的discussions，按更新时间排序，分页
-        url:  /hole/discussions/
+        url:  /api/discussions/
         Args:
             int: page
+        Returns: 
+            Discussion: Array(10)
         '''
         page = int(request.query_params.get('page'))
         interval = settings.INTERVAL
@@ -171,27 +192,39 @@ class DiscussionsView(APIView):
     def post(self, request):
         '''
         新增一个discussion。新增 discussion 的第一个 post 和若干 tag 并将其绑定到 discussion
-        url:  /hole/discussions/
+        url:  /api/discussions/
         Args:
-            content  文本
-            tags     字符串数组
-        Returns:
-            该discussion
+            content  不能全为空白
+            tags     不能为空, 标签的数量不能超过 5 个
+        Returns:  
+            Discussion
         '''
+        # 数据校验
+        content = request.data.get('content')
+        if not content.strip(): return Response({'msg': '内容不能为空！'}, status=status.HTTP_400_BAD_REQUEST)
+
+        tags = request.data.get('tags')
+        if not tags: return Response({'msg': '标签不能为空！'}, status=status.HTTP_400_BAD_REQUEST)
+        if len(tags) > 5: return Response({'msg': '标签不能多于5个'}, status=status.HTTP_400_BAD_REQUEST)
+
         # 创建discussion， 创建tag并添加至discussion
         discussion = Discussion(count=0, mapping={})
         discussion.save()
-
-        tags = request.data.get('tags')
+        
+        # 增/改 tags 并绑定至 discussion
         for tag in tags:
-            logging.error(tag)
-            tag = Tag(name=tag, count=1, color=random_color())  # tag 的颜色为随机的 material design 标准主色   eg.'red'
-            tag.save()
-            discussion.tag.add(tag)
-            logging.error(tag)
+            new_tag = Tag.objects.filter(name=tag['name'])
+            if new_tag:
+                new_tag = new_tag[0]
+                new_tag.count = new_tag.count + 1
+                new_tag.save()
+            else:
+                new_tag = Tag(name=tag['name'], count=1, color=tag['color'])  # tag 的颜色为随机的 material design 标准主色   eg.'red'
+                new_tag.save()
+
+            discussion.tag.add(new_tag)
 
         # create a post
-        content = request.data.get('content')
         anony_name = random_name()
         post = Post(username=anony_name, content=content, discussion_id=discussion.pk)
         post.save()
