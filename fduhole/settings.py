@@ -143,11 +143,11 @@ REST_FRAMEWORK = {
 
 # django-cors-headers
 CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOW_CREDENTIALS = True
-SESSION_COOKIE_SAMESITE = 'None'
-CSRF_COOKIE_SAMESITE = 'None'
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+# CORS_ALLOW_CREDENTIALS = True
+# SESSION_COOKIE_SAMESITE = 'None'
+# CSRF_COOKIE_SAMESITE = 'None'
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
 
 
 ''' 自定义配置 '''
@@ -188,8 +188,10 @@ EMAIL_USE_SSL           = False
 DEFAULT_FROM_EMAIL      = 'fduhole@gmail.com'
 EMAIL_BACKEND           = 'django.core.mail.backends.smtp.EmailBackend'
 
-
+GITHUB_TOKEN = github_token
 
 INTERVAL = 10
 
 WHITELIST = ['fudan.edu.cn']
+
+COLORLIST = ('red', 'pink', 'purple', 'deep-purple', 'indigo', 'blue', 'light-blue', 'cyan', 'teal', 'green', 'light-green', 'lime', 'yellow', 'amber', 'orange', 'deep-orange', 'brown', 'blue-grey', 'grey')

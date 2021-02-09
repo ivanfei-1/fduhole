@@ -14,7 +14,8 @@ from rest_framework.authtoken.models import Token
 from .utils import *
 from .models import *
 from .serializer import *
-import logging
+import logging, base64, httpx
+from datetime import datetime
 
 class RegisterView(APIView):
     '''
@@ -195,7 +196,7 @@ class DiscussionsView(APIView):
         url:  /api/discussions/
         Args:
             content  不能全为空白
-            tags     不能为空, 标签的数量不能超过 5 个
+            tags     不能为空, 标签的数量不能超过 5 个, 标签名不能为空, 标签名不能超过8个字符, 标签颜色需在 Material Design 的主颜色列表内
         Returns:  
             Discussion
         '''
@@ -204,9 +205,13 @@ class DiscussionsView(APIView):
         if not content.strip(): return Response({'msg': '内容不能为空！'}, status=status.HTTP_400_BAD_REQUEST)
 
         tags = request.data.get('tags')
-        if not tags: return Response({'msg': '标签不能为空！'}, status=status.HTTP_400_BAD_REQUEST)
-        if len(tags) > 5: return Response({'msg': '标签不能多于5个'}, status=status.HTTP_400_BAD_REQUEST)
-
+        if len(tags) == 0: return Response({'msg': '标签不能为空'}, status=status.HTTP_400_BAD_REQUEST)
+        if len(tags) >  5: return Response({'msg': '标签不能多于5个'}, status=status.HTTP_400_BAD_REQUEST)
+        for tag in tags:
+            if len(tag['name'].strip()) >  8: return Response({'msg': '标签名不能超过8个字符'}, status=status.HTTP_400_BAD_REQUEST)
+            if not tag['name'].strip(): return Response({'msg': '标签名不能为空'}, status=status.HTTP_400_BAD_REQUEST)
+            if not tag['color'] in settings.COLORLIST: return Response({'msg': '标签颜色不符合规范'}, status=status.HTTP_400_BAD_REQUEST)
+    
         # 创建discussion， 创建tag并添加至discussion
         discussion = Discussion(count=0, mapping={})
         discussion.save()
@@ -263,9 +268,9 @@ class PostsView(APIView):
         新增某一discussion下的post
         url:  /api/posts/
         Args:
-            text: content 
-            int : discussion_id
-            int : post_id (可选，回复一条post的主键)
+            content 
+            discussion_id
+            post_id (可选，回复一条post的主键)
         Returns:
             该post
         '''
@@ -315,3 +320,37 @@ class TagsView(APIView):
         tags = Tag.objects.all()
         serializer = TagSerializer(tags, many=True)
         return Response(serializer.data)
+
+class ImagesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        img = request.data.get('img')
+        if not img: return Response({'msg': '内容不能为空！'}, status=status.HTTP_400_BAD_REQUEST)
+
+        base64_data = base64.b64encode(img.read())  # base64编码
+        img_str = str(base64_data, 'utf-8')
+
+        datetime_str = str(datetime.now())
+        date = datetime_str[:10]
+        time = datetime_str[11:]
+        mime = img.name.split('.')[-1]
+        url = 'https://api.github.com/repos/fduhole/web/contents/{date}/{time}.{mime}'.format(date=date, time=time, mime=mime)
+
+        headers = {
+            'Authorization': 'token {}'.format(settings.GITHUB_TOKEN)
+        }
+
+        body = {
+            'content': img_str,
+            'message': 'upload image by user {}'.format(request.user.username),
+            'branch': 'img'
+        }
+
+        r = httpx.put(url, headers=headers, json=body)
+
+        if r.status_code == 201:
+            url = 'https://cdn.jsdelivr.net/gh/fduhole/web@img/{date}/{time}.{mime}'.format(date=date, time=time, mime=mime)
+            return Response({'url': url, 'msg': '图片上传成功!'})
+        else:
+            return Response(r.json(), status=status.HTTP_400_BAD_REQUEST)

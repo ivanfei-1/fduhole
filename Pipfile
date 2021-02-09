@@ -13,6 +13,7 @@ lxml = "*"
 requests = "*"
 django-rest-framework = "*"
 django-cors-headers = "*"
+httpx = "*"
 
 [dev-packages]
 
