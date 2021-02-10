@@ -159,8 +159,8 @@ class DiscussionsView(APIView):
         date_updated: "2021-02-08T11:47:26.415943+08:00"
         first_post: Post
             content: "Lorem ipsum dolor sit amet ..."
-            discussion: 24
-            id: 55
+            discussion: 42
+            id: 1
             reply_to: null
             username: "bar"
         id: 25
@@ -173,7 +173,8 @@ class DiscussionsView(APIView):
     '''
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+
+    def get(self, request, *args, **kwargs):
         '''
         获取首页展示的discussions，按更新时间排序，分页
         url:  /api/discussions/
@@ -182,13 +183,21 @@ class DiscussionsView(APIView):
         Returns: 
             Discussion: Array(10)
         '''
-        page = int(request.query_params.get('page'))
-        interval = settings.INTERVAL
+        if 'pk' in kwargs:
+            discussion = Discussion.objects.filter(pk=kwargs['pk'])
+            if not discussion: return Response({'msg': '不存在'}, status=status.HTTP_404_NOT_FOUND)
+            serializer = DiscussionSerializer(discussion[0])
+            return Response(serializer.data)
+        else: 
+            if not request.query_params.get('page'): return Response({'msg': '需要提供page参数'}, status=status.HTTP_400_BAD_REQUEST)
 
-        discussions = Discussion.objects.order_by('-date_updated')[(page - 1) * interval : page * interval]
+            page = int(request.query_params.get('page'))
+            interval = settings.INTERVAL
 
-        serializer = DiscussionSerializer(discussions, many=True)
-        return Response(serializer.data)
+            discussions = Discussion.objects.order_by('-date_updated')[(page - 1) * interval : page * interval]
+
+            serializer = DiscussionSerializer(discussions, many=True)
+            return Response(serializer.data)
 
     def post(self, request):
         '''
@@ -243,22 +252,42 @@ class DiscussionsView(APIView):
         return Response(serializer.data)
 
 class PostsView(APIView):
+    '''
+    Post:
+        content: "Lorem ipsum dolor sit amet ..."
+        date_created: "1970-01-01T08:00:00.000000+08:00"
+        discussion: 42
+        id: 1
+        reply_to: null
+        username: "foo"
+    '''
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         '''
-        获取某一discussion的posts，用于discussion页面，分页
+        获取某一discussion的posts
         url:  /api/posts/
-        Args:
-            int: id
-            int: page
+        Args:  
+            page 与 order 二者择一
+            id      int     必须
+            page    int     分页, 默认 10 个为间隔, 从 1 开始
+            order   int     返回 order 楼层之后的所有帖子, order 从 1 开始
+        Returns:
+            Array of Posts
         '''
         discussion_id = int(request.query_params.get('id'))
-        page = int(request.query_params.get('page'))
+        page = request.query_params.get('page')
+        order = request.query_params.get('order')
         interval = settings.INTERVAL
         d = get_object_or_404(Discussion, pk=discussion_id)
-        count = d.count
-        posts = d.post_set.order_by('date_created')[(page - 1) * interval : page * interval]
+  
+        if order: 
+            order = int(order)
+            posts = d.post_set.order_by('date_created')[order:]
+            
+        if page:
+            page = int(page)
+            posts = d.post_set.order_by('date_created')[(page - 1) * interval : page * interval]
 
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
@@ -268,11 +297,11 @@ class PostsView(APIView):
         新增某一discussion下的post
         url:  /api/posts/
         Args:
-            content 
-            discussion_id
-            post_id (可选，回复一条post的主键)
+            content         text    必须    内容
+            discussion_id   int     必须    主题帖的主键
+            post_id         int     可选    要回复的帖子的主键
         Returns:
-            该post
+            Post
         '''
         content = request.data.get('content')
         discussion_id = request.data.get('discussion_id')
