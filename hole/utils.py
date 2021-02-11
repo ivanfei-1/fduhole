@@ -9,7 +9,7 @@ def mail(recipient, code, mode='register'):
         if mode == 'register':
             send_mail(
                 subject='FDUHOLE 注册验证',
-                message='欢迎注册 FDUHOLE，请点击以下链接以继续  ' + domain + 'verify/?code=' + code + '\r\n如果您意外地收到了此邮件，请忽略它',
+                message='欢迎注册 FDUHOLE，您的验证码是:  ' + str(code) + '\r\n验证码的有效期为 5 分钟' + '\r\n如果您意外地收到了此邮件，请忽略它',
                 from_email='fduhole@gmail.com',
                 recipient_list=[recipient],
                 fail_silently=False,
@@ -17,7 +17,7 @@ def mail(recipient, code, mode='register'):
         if mode == 'change_password':
             send_mail(
                 subject='FDUHOLE 修改密码验证',
-                message='请点击以下链接以继续  ' + domain + 'verify/?code=' + code + '\r\n如果您意外地收到了此邮件，请忽略它',
+                message='您的验证码是:  ' + str(code) + '\r\n验证码的有效期为 5 分钟' + '\r\n如果您意外地收到了此邮件，请忽略它',
                 from_email='fduhole@gmail.com',
                 recipient_list=[recipient],
                 fail_silently=False,

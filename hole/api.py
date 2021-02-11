@@ -4,6 +4,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.hashers import make_password, check_password
 from django.http import JsonResponse, HttpResponse
 from django.conf import settings
+from django.core.cache import cache
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -14,46 +15,56 @@ from rest_framework.authtoken.models import Token
 from .utils import *
 from .models import *
 from .serializer import *
-import logging, base64, httpx
+import logging, base64, httpx, random
 from datetime import datetime
 
 class RegisterView(APIView):
     '''
-    url: register/
+    URL: register/
 
-    GET: 检查用户名是否未注册，检查邮箱是否在白名单内且未注册，返回检查是否通过的bool值
-        Args:
-            username 或 email (不能同时提供两者)
-        Returns:
-            data: 
-                0: 验证通过
-                1: 用户名已注册
-                2: 邮箱已注册
-                3: 邮箱不在白名单内
-            msg
-
-    POST: 发送验证邮件
-        Args: 
-            username
-            password
-            email
-        Returns: 
-            data: 
-                -1: 发送失败
-                0 : 发送成功
-                1: 用户名已注册
-                2: 邮箱已注册
-                3: 邮箱不在白名单内
-            msg
-    
     '''
-    def get(self, request):
 
+    def get(self, request):
+        '''
+        GET: 
+            Args:
+                username    string      必须
+                email       string      必须
+
+                只有 username       : 检查用户名是否已注册
+                只有 email          : 检查邮箱是否在白名单内且邮箱是否已注册
+                username 和 email   : 校验信息并发送验证邮件
+            Returns:
+                data: 
+                    0: 验证通过
+                    1: 用户名已注册
+                    2: 邮箱已注册
+                    3: 邮箱不在白名单内
+                msg
+        ''' 
         username = request.query_params.get('username')
         email = request.query_params.get('email')
 
-        # 检查用户名是否已注册
+        if username and email:
+            # 检查用户名是否已注册
+            if User.objects.filter(username=username):
+                return Response({'data': 1, 'msg': '该用户名已注册！'})
+
+            # 检查邮箱是否在白名单内
+            domain = email[email.find('@')+1:]
+            if not domain in settings.WHITELIST: return Response({'data': 3, 'msg': '邮箱不在白名单内！'})
+
+            # 检查邮箱是否已注册
+            for u in User.objects.all():
+                if check_password(email, u.first_name):
+                    return Response({'data': 2, 'msg': '该邮箱已注册！'})
+
+            code = random.randint(100000, 999999)
+            cache.set(username, code, 300)
+            return Response(mail(recipient=email, code=code, mode='register'))
+
         if username:
+            # 检查用户名是否已注册
             if User.objects.filter(username=username):
                 return Response({'data': 1, 'msg': '该用户名已注册！'})
             else: return Response({'data': 0, 'msg': '该用户名未注册！'})
@@ -68,11 +79,29 @@ class RegisterView(APIView):
                     return Response({'data': 2, 'msg': '该邮箱已注册！'})
             return Response({'data': 0, 'msg': '该邮箱未注册！'})
 
+       
     def post(self, request):
+        '''
+        POST: 发送验证邮件
+        Args: 
+            username        必须
+            password        必须
+            email           必须
+            code            必须
+        Returns:    
+            data: 
+               -1 : 发送失败
+                0 : 发送成功
+                1 : 用户名已注册
+                2 : 邮箱已注册
+                3 : 邮箱不在白名单内
+            msg
+        '''
         # 获取数据
         username = request.data.get('username')
         password = request.data.get('password')
         email = request.data.get('email')
+        code = request.data.get('code')
 
         # 检查用户名是否已注册
         if User.objects.filter(username=username):
@@ -86,12 +115,25 @@ class RegisterView(APIView):
         for u in User.objects.all():
                 if check_password(email, u.first_name):
                     return Response({'data': 2, 'msg': '该邮箱已注册！'})
+        
+        # 检查验证码
+        if code:
+            try:
+                code = int(code)
+            except:
+                return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
-        code = make_password(username)
-        temp = TempUser(username=username, password=password, email=email, code=code)
-        temp.save()
+        if not cache.get(username) == code: return Response({'msg': '验证码错误'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        return Response(mail(recipient=email, code=code, mode='register'))
+        email = make_password(email)
+
+        user = User.objects.create_user(username=username, password=password, first_name=email)
+        user.groups.add(1)
+        user.save()
+
+        Token.objects.create(user=user)
+
+        return Response({'msg': '注册成功, 跳转至登录页面'})
 
 class VerifyView(APIView):
     '''
