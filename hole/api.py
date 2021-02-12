@@ -123,7 +123,7 @@ class RegisterView(APIView):
             except:
                 return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
-        if not cache.get(username) == code: return Response({'msg': '验证码错误'}, status=status.HTTP_401_UNAUTHORIZED)
+        if not cache.get(username) == code: return Response({'data': 4, 'msg': '验证码错误'}, status=status.HTTP_401_UNAUTHORIZED)
 
         email = make_password(email)
 
@@ -133,7 +133,7 @@ class RegisterView(APIView):
 
         Token.objects.create(user=user)
 
-        return Response({'msg': '注册成功, 跳转至登录页面'})
+        return Response({'data': 0, 'msg': '注册成功, 跳转至登录页面'})
 
 class VerifyView(APIView):
     '''
