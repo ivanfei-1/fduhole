@@ -1,37 +1,26 @@
-## Welcome to GitHub Pages
+# 欢迎访问复旦树洞
 
-You can use the [editor on GitHub](https://github.com/fduhole/fduhole/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+## 使用方法
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+- Step 1  
 
-### Markdown
+    在 chrome，firefox，safari 等浏览器中打开网址 [www.fduhole.tk](https://www.fduhole.tk) 
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+    注意：请不要使用微信或QQ的内置浏览器打开，否则可能会无法安装应用
 
-```markdown
-Syntax highlighted code block
+- Step 2
 
-# Header 1
-## Header 2
-### Header 3
+    点击出现的 “将‘树洞’添加至主屏幕” 按钮，应用程序会自动安装至手机桌面（当然你也可以浏览网页版）
 
-- Bulleted
-- List
+    ![Screenshot_2021-04-14-23-17-03-507_com.android.chrome~2.jpg](https://i.loli.net/2021/04/14/gu4Ao3ckzl7xULB.jpg)
 
-1. Numbered
-2. List
+    注意：不同浏览器中该提示的位置可能不同，如果它没有出现，请手动添加
+    
+    ![Screenshot_2021-04-14-23-23-04-559_com.android.chrome~2.jpg](https://i.loli.net/2021/04/14/e5ynSmiIcONhlxP.jpg)
 
-**Bold** and _Italic_ and `Code` text
+- Step 3
+  
+    注册、使用，开启你的树洞之旅
 
-[Link](url) and ![Image](src)
-```
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
 
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/fduhole/fduhole/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
