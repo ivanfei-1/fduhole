@@ -30,7 +30,7 @@ class Discussion(models.Model):
 class Post(models.Model):
     content = models.TextField()
     username = models.CharField(max_length=191)
-    reply_to = models.OneToOneField('Post', related_name='+', blank=True, null=True, on_delete=models.SET_NULL)
+    reply_to = models.IntegerField(blank=True, null=True)
     discussion = models.ForeignKey(Discussion, on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True,db_index=True)
     def __str__(self):

@@ -14,13 +14,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import include, path
-import hole.views
+from django.urls import include, path, re_path
 
 urlpatterns = [
     path('api/',include('hole.apiurls')),
-    path('hole/',include('hole.urls')),
-    path('', hole.views.index),
+    path('v1/',include('hole.apiurls')),
     path('pafd/',include('pafd.urls')),
     path('polls/', include('polls.urls')),
     path('admin/', admin.site.urls),

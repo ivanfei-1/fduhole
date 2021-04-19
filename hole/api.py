@@ -25,23 +25,7 @@ class RegisterView(APIView):
     '''
 
     def get(self, request):
-        '''
-        GET: 
-            Args:
-                username    string      必须
-                email       string      必须
-
-                只有 username       : 检查用户名是否已注册
-                只有 email          : 检查邮箱是否在白名单内且邮箱是否已注册
-                username 和 email   : 校验信息并发送验证邮件
-            Returns:
-                data: 
-                    0: 验证通过
-                    1: 用户名已注册
-                    2: 邮箱已注册
-                    3: 邮箱不在白名单内
-                msg
-        ''' 
+        
         username = request.query_params.get('username')
         email = request.query_params.get('email')
 
@@ -55,9 +39,9 @@ class RegisterView(APIView):
             if not domain in settings.WHITELIST: return Response({'data': 3, 'msg': '邮箱不在白名单内！'})
 
             # 检查邮箱是否已注册
-            for u in User.objects.all():
-                if check_password(email, u.first_name):
-                    return Response({'data': 2, 'msg': '该邮箱已注册！'})
+            # for u in User.objects.all():
+            #     if check_password(email, u.first_name):
+            #         return Response({'data': 2, 'msg': '该邮箱已注册！'})
 
             code = random.randint(100000, 999999)
             cache.set(username, code, 300)
@@ -71,12 +55,14 @@ class RegisterView(APIView):
 
         if email:
             # 检查邮箱是否在白名单内
+            # logging.error('开始检查邮箱')
             domain = email[email.find('@')+1:]
             if not domain in settings.WHITELIST: return Response({'data': 3, 'msg': '邮箱不在白名单内！'})
             # 检查邮箱是否已注册
-            for u in User.objects.all():
-                if check_password(email, u.first_name):
-                    return Response({'data': 2, 'msg': '该邮箱已注册！'})
+            # for u in User.objects.all():
+            #     logging.error(u.username)
+            #     if check_password(email, u.first_name):
+            #         return Response({'data': 2, 'msg': '该邮箱已注册！'})
             return Response({'data': 0, 'msg': '该邮箱未注册！'})
 
        
@@ -112,9 +98,9 @@ class RegisterView(APIView):
         if not domain in settings.WHITELIST: return Response({'data': 3, 'msg': '邮箱不在白名单内！'})
 
         # 检查邮箱是否已注册
-        for u in User.objects.all():
-                if check_password(email, u.first_name):
-                    return Response({'data': 2, 'msg': '该邮箱已注册！'})
+        # for u in User.objects.all():
+        #         if check_password(email, u.first_name):
+        #             return Response({'data': 2, 'msg': '该邮箱已注册！'})
         
         # 检查验证码
         if code:
@@ -134,39 +120,6 @@ class RegisterView(APIView):
         Token.objects.create(user=user)
 
         return Response({'data': 0, 'msg': '注册成功, 跳转至登录页面'})
-
-class VerifyView(APIView):
-    '''
-    URL: verify/
-
-    GET: 接收验证链接并正式创建用户
-        Args: code
-        Returns: user data
-    '''
-    def get(self, request):
-        code = request.query_params.get('code')
-        code = code.replace(' ', '+')           # 防止 url 自动将加号转义
-
-        if not code: return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        temp_user_set = TempUser.objects.filter(code=code)
-        if not temp_user_set: return Response(status=status.HTTP_404_NOT_FOUND)
-
-        temp_user = temp_user_set[0]
-        username = temp_user.username
-        email = temp_user.email
-        password = temp_user.password
-
-        email = make_password(email)
-
-        user = User.objects.create_user(username=username, password=password, first_name=email)
-        user.groups.add(1)
-        user.save()
-        temp_user.delete()
-
-        Token.objects.create(user=user)
-
-        return HttpResponse("用户 %s 注册成功，请返回登录页面登录！" % username)
 
 class LoginView(APIView):
     '''
@@ -367,14 +320,14 @@ class PostsView(APIView):
                     username = rname
                     mapping[realname] = rname
                     break
+
+        reply_to = None
+        if post_id : reply_to = post_id
+        post = Post(username=username, content=content, discussion_id=discussion_id, reply_to=reply_to)
+        post.save()
         
         discussion.count = discussion.count + 1
         discussion.save()
-
-        reply_to = None
-        if post_id : reply_to = get_object_or_404(Post, pk=post_id)
-        post = Post(username=username, content=content, discussion_id=discussion_id, reply_to=reply_to)
-        post.save()
 
         serializer = PostSerializer(post)
         return Response(serializer.data)

@@ -15,6 +15,10 @@ django-rest-framework = "*"
 django-cors-headers = "*"
 httpx = "*"
 django-redis = "*"
+coreapi = "*"
+drfdocs = "*"
+drf-yasg = "*"
+drf-yasg2 = "*"
 
 [dev-packages]
 
