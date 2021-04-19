@@ -26,6 +26,15 @@ def mail(recipient, code, mode='register'):
     except SMTPException as e:
         return {'msg': '邮件发送错误，收件人：{}，令牌码：{}，模式：{}，错误信息：{}'.format(recipient, code, mode, e), 'data': -1}
 
+def random_str(num):
+    H = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+
+    salt = ''
+    for i in range(num):
+        salt += random.choice(H)
+
+    return salt
+    
 def random_color():
     colorlist = ('red', 'pink', 'purple', 'deep-purple', 'indigo', 'blue', 'light-blue', 'cyan', 'teal', 'green', 'light-green', 'lime', 'yellow', 'amber', 'orange', 'deep-orange', 'brown', 'blue-grey', 'grey')
     return random.choice(colorlist)

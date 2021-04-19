@@ -205,6 +205,8 @@ EMAIL_BACKEND           = 'django.core.mail.backends.smtp.EmailBackend'
 
 GITHUB_TOKEN = github_token
 
+API_KEY = api_key
+
 INTERVAL = 10
 
 WHITELIST = ['fudan.edu.cn']

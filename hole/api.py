@@ -67,60 +67,76 @@ class RegisterView(APIView):
 
        
     def post(self, request):
-        '''
-        POST: 发送验证邮件
-        Args: 
-            username        必须
-            password        必须
-            email           必须
-            code            必须
-        Returns:    
-            data: 
-               -1 : 发送失败
-                0 : 发送成功
-                1 : 用户名已注册
-                2 : 邮箱已注册
-                3 : 邮箱不在白名单内
-            msg
-        '''
         # 获取数据
         username = request.data.get('username')
         password = request.data.get('password')
         email = request.data.get('email')
         code = request.data.get('code')
+        api_key = request.data.get('api-key')
 
-        # 检查用户名是否已注册
-        if User.objects.filter(username=username):
-            return Response({'data': 1, 'msg': '该用户名已注册！'})
-        
-        # 检查邮箱是否在白名单内
-        domain = email[email.find('@')+1:]
-        if not domain in settings.WHITELIST: return Response({'data': 3, 'msg': '邮箱不在白名单内！'})
+        if api_key:
+            if not api_key in settings.API_KEY: 
+                return Response({}, status=status.HTTP_401_UNAUTHORIZED)
+            
+            # 检查邮箱是否在白名单内
+            domain = email[email.find('@')+1:]
+            if not domain in settings.WHITELIST: return Response({'data': 3, 'msg': '邮箱不在白名单内！'})
 
-        # 检查邮箱是否已注册
-        # for u in User.objects.all():
-        #         if check_password(email, u.first_name):
-        #             return Response({'data': 2, 'msg': '该邮箱已注册！'})
-        
-        # 检查验证码
+            # 用户名
+            username = email[:email.find('@')]
+            
+            if not User.objects.filter(username=username): # 若未注册，创建用户
+                email = make_password(email)
+                user = User.objects.create_user(username=username, password=password, first_name=email)
+                user.groups.add(1)
+                user.save()
+                Token.objects.create(user=user)
+
+            request = httpx.post(
+                'https://www.fduhole.tk/api/login/', 
+                data={
+                    'username': username,
+                    'password': password,
+                })
+            request_code = request.status_code
+            if request_code == 200:
+                return Response(request.json())
+            else:
+                return Response({}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         if code:
+            # 检查用户名是否已注册
+            if User.objects.filter(username=username):
+                return Response({'data': 1, 'msg': '该用户名已注册！'})
+            
+            # 检查邮箱是否在白名单内
+            domain = email[email.find('@')+1:]
+            if not domain in settings.WHITELIST: return Response({'data': 3, 'msg': '邮箱不在白名单内！'})
+
+            # 检查邮箱是否已注册
+            # for u in User.objects.all():
+            #         if check_password(email, u.first_name):
+            #             return Response({'data': 2, 'msg': '该邮箱已注册！'})
+            
+            # 检查验证码
             try:
                 code = int(code)
             except:
                 return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
-        if not cache.get(username) == code: return Response({'data': 4, 'msg': '验证码错误'}, status=status.HTTP_401_UNAUTHORIZED)
+            if not cache.get(username) == code: return Response({'data': 4, 'msg': '验证码错误'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        email = make_password(email)
+            email = make_password(email)
 
-        user = User.objects.create_user(username=username, password=password, first_name=email)
-        user.groups.add(1)
-        user.save()
+            user = User.objects.create_user(username=username, password=password, first_name=email)
+            user.groups.add(1)
+            user.save()
 
-        Token.objects.create(user=user)
+            Token.objects.create(user=user)
 
-        return Response({'data': 0, 'msg': '注册成功, 跳转至登录页面'})
+            return Response({'data': 0, 'msg': '注册成功, 跳转至登录页面'})
 
+        return Response({}, status=status.HTTP_400_BAD_REQUEST)
 class LoginView(APIView):
     '''
     POST: 登录
