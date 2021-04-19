@@ -33,8 +33,9 @@ jobs:
           # Hostname or IP address of the server.
           host: ${{ secrets.REMOTE_HOST }}
           # Username for authentication.
-          username: ${{ secrets.USER }}
+#           username: ${{ secrets.USER }}
+          username: 'shi'
           # File Location or string that contains a private key for either key-based or hostbased user authentication (OpenSSH format)
           #key: ${{ secrets.ACCESS_TOKEN }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          tryKeyboard: true
+#           tryKeyboard: true
