@@ -1,0 +1,38 @@
+name: Deploy to server
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # 切换分支
+      - name: Checkout
+        uses: actions/checkout@master
+
+      # 部署推送
+      - name: Deploy
+        uses: easingthemes/ssh-deploy@v2.0.7
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.ACCESS_TOKEN }}
+          ARGS: "-avz"
+          SOURCE: "/"
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          TARGET: ${{ secrets.BACKEND_DIR }}
+          
+      - name: Run SSH command
+        uses: garygrossgarten/github-action-ssh@v0.6.3
+        with:
+          # Command to execute on the remote server.
+          command: cd ${{ secrets.BACKEND_DIR }}
+                   pipenv install
+                   python3 manage.py migrate
+                   uwsgi --reload ~/fduhole/conf/uwsgi.pid
+          # Hostname or IP address of the server.
+          host: ${{ secrets.REMOTE_HOST }}
+          # Username for authentication.
+          username: ${{ secrets.USER }}
+          # File Location or string that contains a private key for either key-based or hostbased user authentication (OpenSSH format)
+          privateKey: ${{ secrets.ACCESS_TOKEN }}
