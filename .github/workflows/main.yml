@@ -23,10 +23,10 @@ jobs:
           TARGET: ${{ secrets.BACKEND_DIR }}
           
       - name: Run SSH command
-        uses: appleboy/ssh-action@v0.1.4
+        uses: garygrossgarten/github-action-ssh@v0.6.3
         with:
           # Command to execute on the remote server.
-          script:  cd ${{ secrets.BACKEND_DIR }}  &&
+          command:  cd ${{ secrets.BACKEND_DIR }}  &&
                    pipenv install                 &&
                    python3 manage.py migrate      &&
                    uwsgi --reload ~/fduhole/conf/uwsgi.pid
@@ -37,3 +37,4 @@ jobs:
           # File Location or string that contains a private key for either key-based or hostbased user authentication (OpenSSH format)
           #key: ${{ secrets.ACCESS_TOKEN }}
           password: ${{ secrets.SERVER_PASSWORD }}
+          tryKeyboard: true
