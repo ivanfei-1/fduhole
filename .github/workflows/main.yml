@@ -12,7 +12,7 @@ jobs:
         uses: actions/checkout@master
 
       # 部署推送
-      - name: Deploy
+      - name: Rsync
         uses: easingthemes/ssh-deploy@v2.0.7
         env:
           SSH_PRIVATE_KEY: ${{ secrets.ACCESS_TOKEN }}
@@ -35,5 +35,5 @@ jobs:
           # Username for authentication.
           username: ${{ secrets.USER }}
           # File Location or string that contains a private key for either key-based or hostbased user authentication (OpenSSH format)
-#           privateKey: ${{ secrets.ACCESS_TOKEN }}
+          key: ${{ secrets.ACCESS_TOKEN }}
           password: ${{ secrets.SERVER_PASSWORD }}
