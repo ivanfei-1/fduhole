@@ -27,9 +27,8 @@ jobs:
         with:
           script: |
             cd ${{ secrets.BACKEND_DIR }}  
-            pipenv shell
             pipenv install                 
-            python3 manage.py migrate      
+            pipenv run python3 manage.py migrate      
             uwsgi --reload ~/fduhole/conf/uwsgi.pid
           host: ${{ secrets.REMOTE_HOST }}
           username: 'shi'
