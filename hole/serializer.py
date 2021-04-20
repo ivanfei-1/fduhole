@@ -24,7 +24,7 @@ class DiscussionSerializer(serializers.ModelSerializer):
     tag = TagSerializer(many=True)
     class Meta:
         model = Discussion
-        fields = '__all__'
+        exclude = ('mapping')
         depth = 1
 
     

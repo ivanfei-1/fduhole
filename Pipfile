@@ -19,6 +19,7 @@ coreapi = "*"
 drfdocs = "*"
 drf-yasg = "*"
 drf-yasg2 = "*"
+mysql-connector-python = "*"
 
 [dev-packages]
 
