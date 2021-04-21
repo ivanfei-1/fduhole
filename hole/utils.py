@@ -3,7 +3,7 @@ from smtplib import SMTPException
 import logging, random
 from django.conf import settings
 
-def mail(recipient, code, mode='register'):
+def mail(recipient, code, mode):
     domain = 'https://www.fduhole.tk/api/'
     try:
         if mode == 'register':
@@ -17,14 +17,14 @@ def mail(recipient, code, mode='register'):
         if mode == 'change_password':
             send_mail(
                 subject='FDUHOLE 修改密码验证',
-                message='您的验证码是:  ' + str(code) + '\r\n验证码的有效期为 5 分钟' + '\r\n如果您意外地收到了此邮件，请忽略它',
+                message='您即将修改密码，您的验证码是:  ' + str(code) + '\r\n验证码的有效期为 5 分钟' + '\r\n如果您意外地收到了此邮件，请忽略它',
                 from_email='fduhole@gmail.com',
                 recipient_list=[recipient],
                 fail_silently=False,
             )
         return {'msg': '发送成功！', 'data': 0}
     except SMTPException as e:
-        return {'msg': '邮件发送错误，收件人：{}，令牌码：{}，模式：{}，错误信息：{}'.format(recipient, code, mode, e), 'data': -1}
+        return {'msg': '邮件发送错误，收件人：{}，验证码：{}，模式：{}，错误信息：{}'.format(recipient, code, mode, e), 'data': -1}
 
 def random_str(num):
     H = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
