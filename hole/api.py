@@ -173,8 +173,8 @@ class DiscussionsView(APIView):
         page = request.query_params.get('page')
         order = request.query_params.get('order')
 
-        if 'pk' in kwargs:
-            discussion = get_object_or_404(pk=kwargs['pk'])
+        if discussion_id:
+            discussion = get_object_or_404(Discussion, pk=discussion_id)
             serializer = DiscussionSerializer(discussion)
             return Response(serializer.data)
 
