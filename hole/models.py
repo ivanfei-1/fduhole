@@ -35,5 +35,16 @@ class Post(models.Model):
     reply_to = models.IntegerField(blank=True, null=True)
     discussion = models.ForeignKey(Discussion, on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True,db_index=True)
+
     def __str__(self):
         return '#' + str(self.pk) + ' ' + self.content[:100]
+
+class Report(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    reason = models.TextField()
+    date_created = models.DateTimeField(auto_now_add=True,db_index=True)
+
+    def __str__(self):
+        return '帖子#{}，{}'.format(self.post.pk, self.reason)
+    
+
