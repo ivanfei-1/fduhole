@@ -29,24 +29,28 @@ class RegisterView(APIView):
         
         username = request.query_params.get('username')
         email = request.query_params.get('email')
+        usage = request.query_params.get('usage')
+        if not usage: usage = 'register'
 
         if username and email:
-            # 检查用户名是否已注册
-            if User.objects.filter(username=username):
-                return Response({'data': 1, 'msg': '该用户名已注册！'})
+
+            if usage == 'change_password':
+                if not User.objects.filter(username=username): return Response({'msg': '用户不存在！'}, status=status.HTTP_404_NOT_FOUND)
+            else:
+                if User.objects.filter(username=username): return Response({'data': 1, 'msg': '该用户名已注册！'})
+
+                # 检查邮箱是否已注册
+                # for u in User.objects.all():
+                #     if check_password(email, u.first_name):
+                #         return Response({'data': 2, 'msg': '该邮箱已注册！'})
 
             # 检查邮箱是否在白名单内
             domain = email[email.find('@')+1:]
             if not domain in settings.WHITELIST: return Response({'data': 3, 'msg': '邮箱不在白名单内！'})
 
-            # 检查邮箱是否已注册
-            # for u in User.objects.all():
-            #     if check_password(email, u.first_name):
-            #         return Response({'data': 2, 'msg': '该邮箱已注册！'})
-
             code = random.randint(100000, 999999)
             cache.set(username, code, 300)
-            return Response(mail(recipient=email, code=code, mode='register'))
+            return Response(mail(recipient=email, code=code, mode=usage))
 
         if username:
             # 检查用户名是否已注册
@@ -93,17 +97,23 @@ class RegisterView(APIView):
                 user.save()
                 Token.objects.create(user=user)
 
-            request = httpx.post(
-                'https://www.fduhole.tk/api/login/', 
-                data={
-                    'username': username,
-                    'password': password,
-                })
-            request_code = request.status_code
-            if request_code == 200:
-                return Response(request.json())
-            else:
-                return Response({}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            user = User.objects.get(username=username)
+            token = Token.objects.get(user=user)
+            return Response({
+                'username': username,
+                'token': token.key,
+            })
+            # request = httpx.post(
+            #     'https://www.fduhole.tk/api/login/', 
+            #     data={
+            #         'username': username,
+            #         'password': password,
+            #     })
+            # request_code = request.status_code
+            # if request_code == 200:
+            #     return Response(request.json())
+            # else:
+            #     return Response({}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         if code:
             # 检查用户名是否已注册
@@ -138,6 +148,34 @@ class RegisterView(APIView):
             return Response({'data': 0, 'msg': '注册成功, 跳转至登录页面'})
 
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        code = request.data.get('code')
+
+        try:
+            code = int(code)
+            assert cache.get(username) == code
+        except:
+            return Response({'msg': '验证码错误'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        try: user = User.objects.get(username=username)
+        except: return Response({'msg': '用户不存在！'}, status=status.HTTP_404_NOT_FOUND)
+
+        user.set_password(password)
+        user.save()
+
+        old_token = Token.objects.get(user=user)
+        old_token.delete()
+        Token.objects.create(user=user)
+        new_token = Token.objects.get(user=user)
+        
+        return Response({
+            'username': username,
+            'token': new_token.key
+        })
+
 class LoginView(APIView):
     '''
     POST: 登录
@@ -174,8 +212,8 @@ class DiscussionsView(APIView):
         page = request.query_params.get('page')
         order = request.query_params.get('order')
 
-        if 'pk' in kwargs:
-            discussion = get_object_or_404(pk=kwargs['pk'])
+        if discussion_id:
+            discussion = get_object_or_404(Discussion, pk=discussion_id)
             serializer = DiscussionSerializer(discussion)
             return Response(serializer.data)
 
