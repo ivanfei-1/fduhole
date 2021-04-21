@@ -24,6 +24,8 @@ class Discussion(models.Model):
     first_post = models.OneToOneField('Post', related_name='+', null=True, on_delete=models.SET_NULL) # on_delete null 需要进一步设置
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True,db_index=True)
+    is_folded = models.BooleanField(default=False)
+    
     def __str__(self):
         return '#' + str(self.pk) + ' ' + self.first_post.content[:100]
 

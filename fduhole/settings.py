@@ -165,6 +165,8 @@ CACHES = {
     },
 }
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 ''' 自定义配置 '''
 
 # My Password Hashers
