@@ -163,63 +163,41 @@ class LoginView(APIView):
             return Response({'msg': '%s 已登出！' % username})
 
 class DiscussionsView(APIView):
-    '''
-    Returns: Discussion
-        count: 0
-        date_created: "1970-01-01T08:00:00.000000+08:00"
-        date_updated: "2021-02-08T11:47:26.415943+08:00"
-        first_post: Post
-            content: "Lorem ipsum dolor sit amet ..."
-            discussion: 42
-            id: 1
-            reply_to: null
-            username: "bar"
-        id: 25
-        mapping: {foo: "bar"}
-        tag: Array(3)
-            0:
-                color: "deep-orange"
-                count: 1
-                name: "tag1"
-    '''
+
     permission_classes = [IsAuthenticated]
 
-
     def get(self, request, *args, **kwargs):
-        '''
-        获取首页展示的discussions，按更新时间排序，分页
-        url:  /api/discussions/
-        Args:
-            int: page
-        Returns: 
-            Discussion: Array(10)
-        '''
+
+        discussion_id = request.query_params.get('discussion_id')
+        tag_name = request.query_params.get('tag_name')
+        page = request.query_params.get('page')
+        order = request.query_params.get('order')
+
         if 'pk' in kwargs:
-            discussion = Discussion.objects.filter(pk=kwargs['pk'])
-            if not discussion: return Response({'msg': '不存在'}, status=status.HTTP_404_NOT_FOUND)
-            serializer = DiscussionSerializer(discussion[0])
+            discussion = get_object_or_404(pk=kwargs['pk'])
+            serializer = DiscussionSerializer(discussion)
             return Response(serializer.data)
+
+        elif tag_name: # 默认按更新时间排序
+            if order == 'last_created':
+                discussions = get_object_or_404(Tag, name=tag_name).discussion_set.order_by('-date_created')
+            else:
+                discussions = get_object_or_404(Tag, name=tag_name).discussion_set.order_by('-date_updated')
+            
         else: 
-            if not request.query_params.get('page'): return Response({'msg': '需要提供page参数'}, status=status.HTTP_400_BAD_REQUEST)
-
-            page = int(request.query_params.get('page'))
+            if not page: return Response({'msg': '需要提供page参数'}, status=status.HTTP_400_BAD_REQUEST)
+            page = int(page)
             interval = settings.INTERVAL
+            if order == 'last_created':
+                discussions = Discussion.objects.order_by('-date_created')[(page - 1) * interval : page * interval]
+            else:
+                discussions = Discussion.objects.order_by('-date_updated')[(page - 1) * interval : page * interval]
 
-            discussions = Discussion.objects.order_by('-date_updated')[(page - 1) * interval : page * interval]
-
-            serializer = DiscussionSerializer(discussions, many=True)
-            return Response(serializer.data)
+        serializer = DiscussionSerializer(discussions, many=True)
+        return Response(serializer.data)
 
     def post(self, request):
-        '''
-        新增一个discussion。新增 discussion 的第一个 post 和若干 tag 并将其绑定到 discussion
-        url:  /api/discussions/
-        Args:
-            content  不能全为空白
-            tags     不能为空, 标签的数量不能超过 5 个, 标签名不能为空, 标签名不能超过8个字符, 标签颜色需在 Material Design 的主颜色列表内
-        Returns:  
-            Discussion
-        '''
+
         # 数据校验
         content = request.data.get('content')
         if not content.strip(): return Response({'msg': '内容不能为空！'}, status=status.HTTP_400_BAD_REQUEST)
@@ -263,57 +241,41 @@ class DiscussionsView(APIView):
         return Response(serializer.data)
 
 class PostsView(APIView):
-    '''
-    Post:
-        content: "Lorem ipsum dolor sit amet ..."
-        date_created: "1970-01-01T08:00:00.000000+08:00"
-        discussion: 42
-        id: 1
-        reply_to: null
-        username: "foo"
-    '''
+
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        '''
-        获取某一discussion的posts
-        url:  /api/posts/
-        Args:  
-            page 与 order 二者择一
-            id      int     必须
-            page    int     分页, 默认 10 个为间隔, 从 1 开始
-            order   int     返回 order 楼层之后的所有帖子, order 从 1 开始
-        Returns:
-            Array of Posts
-        '''
-        discussion_id = int(request.query_params.get('id'))
+        post_id = request.query_params.get('post_id')
+        discussion_id = request.query_params.get('id')
         page = request.query_params.get('page')
         order = request.query_params.get('order')
+        search = request.query_params.get('search')
         interval = settings.INTERVAL
-        d = get_object_or_404(Discussion, pk=discussion_id)
-  
-        if order: 
-            order = int(order)
-            posts = d.post_set.order_by('date_created')[order:]
-            
-        if page:
-            page = int(page)
-            posts = d.post_set.order_by('date_created')[(page - 1) * interval : page * interval]
+
+        if post_id:
+            post_id = int(post_id)
+            post = get_object_or_404(Post, pk=post_id)
+            serializer = PostSerializer(post)
+            return Response(serializer.data)
+        elif search:
+            posts = Post.objects.filter(content__icontains=search).order_by('-date_created')
+        else:
+            discussion_id = int(discussion_id)
+            d = get_object_or_404(Discussion, pk=discussion_id)
+    
+            if order: 
+                order = int(order)
+                posts = d.post_set.order_by('date_created')[order:]
+                
+            if page:
+                page = int(page)
+                posts = d.post_set.order_by('date_created')[(page - 1) * interval : page * interval]
 
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
 
     def post(self, request):
-        '''
-        新增某一discussion下的post
-        url:  /api/posts/
-        Args:
-            content         text    必须    内容
-            discussion_id   int     必须    主题帖的主键
-            post_id         int     可选    要回复的帖子的主键
-        Returns:
-            Post
-        '''
+
         content = request.data.get('content')
         discussion_id = request.data.get('discussion_id')
         post_id = request.data.get('post_id')
@@ -352,11 +314,7 @@ class TagsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        '''
-        获取全部的 tags
-        URL: /api/tags/
-        Args: 无
-        '''
+        # name = request.query_params.get('name')
         tags = Tag.objects.all()
         serializer = TagSerializer(tags, many=True)
         return Response(serializer.data)
