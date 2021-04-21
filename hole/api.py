@@ -5,6 +5,7 @@ from django.contrib.auth.hashers import make_password, check_password
 from django.http import JsonResponse, HttpResponse
 from django.conf import settings
 from django.core.cache import cache
+from django.core.mail import send_mail
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -352,3 +353,30 @@ class ImagesView(APIView):
             return Response({'url': url, 'msg': '图片上传成功!'})
         else:
             return Response(r.json(), status=status.HTTP_400_BAD_REQUEST)
+
+class ReportView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        post_id = request.data.get('post_id')
+        reason = request.data.get('reason')
+        if not reason: return Response({'msg': '举报原因不能为空！'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try: post = Post.objects.get(pk=post_id)
+        except: return Response({'msg': '举报帖子不能为空！'}, status=status.HTTP_400_BAD_REQUEST)
+
+        report = Report(post=post, reason=reason)
+        report.save()
+
+        send_mail(
+                subject='举报#{}'.format(post_id),
+                message='用户举报了帖子#{} \r\n原因是：{} \r\n帖子的内容为：{}'.format(post_id, reason, post.content),
+                from_email='fduhole@gmail.com',
+                recipient_list=['fduhole@gmail.com'],
+                fail_silently=True,
+            )
+        
+        serializer = ReportSerializer(report)
+        return Response(serializer.data)
+
+

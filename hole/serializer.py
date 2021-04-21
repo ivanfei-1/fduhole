@@ -27,4 +27,7 @@ class DiscussionSerializer(serializers.ModelSerializer):
         exclude = ('mapping',)
         depth = 1
 
-    
+class ReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Report
+        fields = '__all__'
