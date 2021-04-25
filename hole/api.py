@@ -231,9 +231,18 @@ class DiscussionsView(APIView):
                 discussions = Discussion.objects.order_by('-date_created')[(page - 1) * interval : page * interval]
             else:
                 discussions = Discussion.objects.order_by('-date_updated')[(page - 1) * interval : page * interval]
+        
+        last_post_list = []
+        for discussion in discussions:
+            last_post = discussion.post_set.order_by('-date_created')[0]
+            last_post_list.append(last_post)
+        
+        last_posts = PostSerializer(last_post_list, many=True).data
+        response_data = DiscussionSerializer(discussions, many=True).data
 
-        serializer = DiscussionSerializer(discussions, many=True)
-        return Response(serializer.data)
+        for i in range(len(response_data)):
+            response_data[i].update({'last_post': last_posts[i]})
+        return Response(response_data)
 
     def post(self, request):
 
