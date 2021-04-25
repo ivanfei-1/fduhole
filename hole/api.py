@@ -242,15 +242,17 @@ class DiscussionsView(APIView):
         if not content.strip(): return Response({'msg': '内容不能为空！'}, status=status.HTTP_400_BAD_REQUEST)
 
         tags = request.data.get('tags')
+        is_folded = False
         if len(tags) == 0: return Response({'msg': '标签不能为空'}, status=status.HTTP_400_BAD_REQUEST)
         if len(tags) >  5: return Response({'msg': '标签不能多于5个'}, status=status.HTTP_400_BAD_REQUEST)
         for tag in tags:
             if len(tag['name'].strip()) >  8: return Response({'msg': '标签名不能超过8个字符'}, status=status.HTTP_400_BAD_REQUEST)
             if not tag['name'].strip(): return Response({'msg': '标签名不能为空'}, status=status.HTTP_400_BAD_REQUEST)
             if not tag['color'] in settings.COLORLIST: return Response({'msg': '标签颜色不符合规范'}, status=status.HTTP_400_BAD_REQUEST)
+            if tag['name'][0] == '*': is_folded = True 
     
         # 创建discussion， 创建tag并添加至discussion
-        discussion = Discussion(count=0, mapping={})
+        discussion = Discussion(count=0, mapping={}, is_folded = is_folded)
         discussion.save()
         
         # 增/改 tags 并绑定至 discussion
