@@ -408,13 +408,16 @@ class ReportView(APIView):
         report = Report(post=post, reason=reason)
         report.save()
 
-        send_mail(
-                subject='举报#{}'.format(post_id),
-                message='用户举报了帖子#{} \r\n原因是：{} \r\n帖子的内容为：{}'.format(post_id, reason, post.content),
-                from_email='fduhole@gmail.com',
-                recipient_list=['fduhole@gmail.com'],
-                fail_silently=True,
-            )
+        try:
+            send_mail(
+                    subject='树洞举报#{}'.format(post_id),
+                    message='用户举报了帖子#{} \r\n原因是：{} \r\n帖子的内容为：{}'.format(post_id, reason, post.content),
+                    from_email='fduhole@gmail.com',
+                    recipient_list=settings.ADMIN_MAIL_LIST,
+                    fail_silently=False,
+                )
+        except SMTPException as e:
+            return Response({'msg': '{}'.format(e)}, status=status.HTTP_500_INTERAL_SERVER_ERROR)
         
         serializer = ReportSerializer(report)
         return Response(serializer.data)

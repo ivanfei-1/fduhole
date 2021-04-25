@@ -213,4 +213,6 @@ INTERVAL = 10
 
 WHITELIST = ['fudan.edu.cn']
 
+ADMIN_MAIL_LIST = ['fduhole@gmail.com', 'danxi_dev@protonmail.com']
+
 COLORLIST = ('red', 'pink', 'purple', 'deep-purple', 'indigo', 'blue', 'light-blue', 'cyan', 'teal', 'green', 'light-green', 'lime', 'yellow', 'amber', 'orange', 'deep-orange', 'brown', 'blue-grey', 'grey')
