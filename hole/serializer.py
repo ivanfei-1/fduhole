@@ -6,7 +6,7 @@ from .models import *
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ('username', 'is_active', 'is_staff', 'is_superuser')
 
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,4 +30,12 @@ class DiscussionSerializer(serializers.ModelSerializer):
 class ReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Report
+        fields = '__all__'
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    favored_discussion = DiscussionSerializer(many=True)
+
+    class Meta:
+        model = UserProfile
         fields = '__all__'

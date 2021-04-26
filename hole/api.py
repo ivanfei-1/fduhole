@@ -92,9 +92,12 @@ class RegisterView(APIView):
             
             if not User.objects.filter(username=username): # 若未注册，创建用户
                 email = make_password(email)
-                user = User.objects.create_user(username=username, password=password, first_name=email)
+                password = random_str(16)
+                user = User.objects.create_user(username=username, password=password)
                 user.groups.add(1)
                 user.save()
+                profile = UserProfile(user=user, encrypted_email=email)
+                profile.save()
                 Token.objects.create(user=user)
 
             user = User.objects.get(username=username)
@@ -103,17 +106,6 @@ class RegisterView(APIView):
                 'username': username,
                 'token': token.key,
             })
-            # request = httpx.post(
-            #     'https://www.fduhole.tk/api/login/', 
-            #     data={
-            #         'username': username,
-            #         'password': password,
-            #     })
-            # request_code = request.status_code
-            # if request_code == 200:
-            #     return Response(request.json())
-            # else:
-            #     return Response({}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         if code:
             # 检查用户名是否已注册
@@ -138,11 +130,11 @@ class RegisterView(APIView):
             if not cache.get(username) == code: return Response({'data': 4, 'msg': '验证码错误'}, status=status.HTTP_401_UNAUTHORIZED)
 
             email = make_password(email)
-
-            user = User.objects.create_user(username=username, password=password, first_name=email)
+            user = User.objects.create_user(username=username, password=password)
             user.groups.add(1)
             user.save()
-
+            profile = UserProfile(user=user, encrypted_email=email)
+            profile.save()
             Token.objects.create(user=user)
 
             return Response({'data': 0, 'msg': '注册成功, 跳转至登录页面'})
@@ -404,6 +396,7 @@ class ImagesView(APIView):
             return Response(r.json(), status=status.HTTP_400_BAD_REQUEST)
 
 class ReportView(APIView):
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -431,4 +424,31 @@ class ReportView(APIView):
         serializer = ReportSerializer(report)
         return Response(serializer.data)
 
+class UserProfileView(APIView):
 
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        username = request.user.username 
+        profile = get_object_or_404(User, username=username).profile
+        serializer = UserProfileSerializer(profile)
+        return Response(serializer.data)
+
+    def put(self, request):
+        username = request.user.username 
+        mode = request.data.get('mode')
+        if not mode: return Response({'msg': 'mode 未提供'}, status=status.HTTP_400_BAD_REQUEST)
+        profile = get_object_or_404(User, username=username).profile
+
+        if mode == 'addFavoredDiscussion' or mode == 'deleteFavoredDiscussion':
+            favored_discussion_id = int(request.data.get('favoredDiscussion'))
+            favored_discussion = get_object_or_404(Discussion, pk=favored_discussion_id)
+
+            if mode == 'addFavoredDiscussion':
+                profile.favored_discussion.add(favored_discussion)
+            if mode == 'deleteFavoredDiscussion':
+                profile.favored_discussion.remove(favored_discussion)
+            
+        profile.save()
+        serializer = UserProfileSerializer(profile)
+        return Response(serializer.data)

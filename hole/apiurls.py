@@ -11,6 +11,7 @@ urlpatterns = [
     path('tags/', api.TagsView.as_view()),
     path('login/', views.obtain_auth_token),
     path('register/', api.RegisterView.as_view()),
+    path('profile/', api.UserProfileView.as_view()),
     path('images/', api.ImagesView.as_view()),
     path('reports/', api.ReportView.as_view()),
 ]

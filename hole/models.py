@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 class TempUser(models.Model):
@@ -46,5 +47,14 @@ class Report(models.Model):
 
     def __str__(self):
         return '帖子#{}，{}'.format(self.post.pk, self.reason)
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    favored_discussion = models.ManyToManyField(Discussion, blank=True)
+    encrypted_email = models.CharField(max_length=200, blank=True)
+
+    def __str__(self):
+        # return self.user.__str__()
+        return "{}".format(self.user.__str__())
     
 
