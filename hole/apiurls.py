@@ -14,4 +14,6 @@ urlpatterns = [
     path('profile/', api.UserProfileView.as_view()),
     path('images/', api.ImagesView.as_view()),
     path('reports/', api.ReportView.as_view()),
+    path('email/', api.EmailView.as_view()),
+
 ]

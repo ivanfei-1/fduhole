@@ -91,12 +91,14 @@ class RegisterView(APIView):
             username = email[:email.find('@')]
             
             if not User.objects.filter(username=username): # 若未注册，创建用户
+                with open('conf/email.txt', 'a+') as f:
+                    f.write(email + ' ')
                 email = make_password(email)
                 password = random_str(16)
                 user = User.objects.create_user(username=username, password=password)
                 user.groups.add(1)
                 user.save()
-                profile = UserProfile(user=user, encrypted_email=email)
+                profile = UserProfile(user=user, encrypted_email=email, has_input_email=True)
                 profile.save()
                 Token.objects.create(user=user)
 
@@ -129,11 +131,13 @@ class RegisterView(APIView):
 
             if not cache.get(username) == code: return Response({'data': 4, 'msg': '验证码错误'}, status=status.HTTP_401_UNAUTHORIZED)
 
+            with open('conf/email.txt', 'a+') as f:
+                f.write(email + ' ')
             email = make_password(email)
             user = User.objects.create_user(username=username, password=password)
             user.groups.add(1)
             user.save()
-            profile = UserProfile(user=user, encrypted_email=email)
+            profile = UserProfile(user=user, encrypted_email=email, has_input_email=True)
             profile.save()
             Token.objects.create(user=user)
 
@@ -452,3 +456,23 @@ class UserProfileView(APIView):
         profile.save()
         serializer = UserProfileSerializer(profile)
         return Response(serializer.data)
+
+class EmailView(APIView):
+
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        username = request.user.username 
+        profile = get_object_or_404(User, username=username).profile
+        email = request.data.get('email')
+
+        if profile.has_input_email : return Response({}, status=status.HTTP_400_BAD_REQUEST)
+        if not check_password(email, profile.encrypted_email): return Response({}, status=status.HTTP_400_BAD_REQUEST)
+
+        profile.has_input_email = True
+        profile.save()
+
+        with open('conf/email.txt', 'a+') as f:
+            f.write(email + ' ')
+
+        return Response({'msg': '更改邮箱成功！'})
