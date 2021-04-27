@@ -24,6 +24,7 @@ class DiscussionSerializer(serializers.ModelSerializer):
     tag = TagSerializer(many=True)
     class Meta:
         model = Discussion
+        fields = '__all__'
         depth = 1
 
 class ReportSerializer(serializers.ModelSerializer):
