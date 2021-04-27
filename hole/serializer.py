@@ -24,7 +24,6 @@ class DiscussionSerializer(serializers.ModelSerializer):
     tag = TagSerializer(many=True)
     class Meta:
         model = Discussion
-        exclude = ('mapping',)
         depth = 1
 
 class ReportSerializer(serializers.ModelSerializer):
