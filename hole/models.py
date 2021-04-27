@@ -1,22 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# Create your models here.
-class TempUser(models.Model):
-    username = models.CharField(max_length=32)
-    password = models.CharField(max_length=32)
-    email = models.EmailField(max_length=32, primary_key=True)
-    code = models.CharField(max_length=191)
-    def __str__(self):
-        return self.email + ':' + self.username
-
 class Tag(models.Model):
     name = models.CharField(max_length=8, primary_key=True)
     count = models.IntegerField(db_index=True, default='0')
     color = models.CharField(max_length=32, default='blue')
     def __str__(self):
         return self.name
-
 
 class Discussion(models.Model):
     count = models.IntegerField()
@@ -32,7 +22,7 @@ class Discussion(models.Model):
 
 class Post(models.Model):
     content = models.TextField()
-    username = models.CharField(max_length=191)
+    username = models.CharField(max_length=16)
     reply_to = models.IntegerField(blank=True, null=True)
     discussion = models.ForeignKey(Discussion, on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True,db_index=True)
@@ -53,9 +43,23 @@ class UserProfile(models.Model):
     favored_discussion = models.ManyToManyField(Discussion, blank=True)
     encrypted_email = models.CharField(max_length=200, blank=True)
     has_input_email = models.BooleanField(default=False)
+    registered_from_app = models.BooleanField(default=False)
 
     def __str__(self):
         # return self.user.__str__()
         return "{}".format(self.user.__str__())
     
+class Mapping(models.Model):
+    username = models.ForeignKey(User, on_delete=models.CASCADE)
+    anonyname = models.CharField(max_length=16)
+    discussion = models.ForeignKey(Discussion, related_name='name_mapping', on_delete=models.CASCADE)
+    def __str__(self):
+        return '#{}: {} -> {}'.format(self.discussion.pk, self.username.username, self.anonyname)
 
+class Message(models.Model):
+    from_user = models.ForeignKey(User, related_name='message_from', on_delete=models.CASCADE, db_index=True)
+    to_user = models.ForeignKey(User, related_name='message_to', on_delete=models.CASCADE, db_index=True)
+    content = models.TextField()
+    date_created = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return '{} -> {}: {}'.format(self.from_user.username, self.to_user.username, self.content)

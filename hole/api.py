@@ -98,7 +98,7 @@ class RegisterView(APIView):
                 user = User.objects.create_user(username=username, password=password)
                 user.groups.add(1)
                 user.save()
-                profile = UserProfile(user=user, encrypted_email=email, has_input_email=True)
+                profile = UserProfile(user=user, encrypted_email=email, has_input_email=True, registered_from_app=True)
                 profile.save()
                 Token.objects.create(user=user)
 
@@ -257,7 +257,7 @@ class DiscussionsView(APIView):
             if tag['name'][0] == '*': is_folded = True 
     
         # 创建discussion， 创建tag并添加至discussion
-        discussion = Discussion(count=0, mapping={}, is_folded = is_folded)
+        discussion = Discussion(count=0, is_folded = is_folded)
         discussion.save()
         
         # 增/改 tags 并绑定至 discussion
@@ -274,12 +274,15 @@ class DiscussionsView(APIView):
             discussion.tag.add(new_tag)
 
         # create a post
-        anony_name = random_name()
-        post = Post(username=anony_name, content=content, discussion_id=discussion.pk)
+        anonyname = random_name()
+        post = Post(username=anonyname, content=content, discussion_id=discussion.pk)
         post.save()
 
+        # create a mapping
+        mapping = Mapping(username=request.user, anonyname=anonyname, discussion=discussion)
+        mapping.save()
+
         # save the discussion
-        discussion.mapping = {request.user.username : anony_name}
         discussion.first_post = post
         discussion.save()
 
@@ -330,24 +333,27 @@ class PostsView(APIView):
         if not discussion_id: return Response({'msg': 'discussion id 不能为空！'}, status=status.HTTP_400_BAD_REQUEST)
 
         discussion = get_object_or_404(Discussion, pk=discussion_id)
-        mapping = discussion.mapping
-        realname = request.user.username
-        username = ''
-        if realname in mapping:
-            username = mapping[realname]
-        else:
+        mappings = discussion.name_mapping
+        user = request.user
+        realname = user.username
+
+        try:
+            mapping = mappings.get(username=user)
+            anonyname = mapping.anonyname
+        except:
             while True:
-                rname = random_name()
-                if rname in mapping.values():
+                anonyname = random_name()
+                if mappings.filter(anonyname=anonyname):
                     continue
                 else:
-                    username = rname
-                    mapping[realname] = rname
+                    mapping = Mapping(username=user, anonyname=anonyname, discussion=discussion)
+                    mapping.save()
                     break
 
         reply_to = None
         if post_id : reply_to = post_id
-        post = Post(username=username, content=content, discussion_id=discussion_id, reply_to=reply_to)
+
+        post = Post(username=anonyname, content=content, discussion_id=discussion_id, reply_to=reply_to)
         post.save()
         
         discussion.count = discussion.count + 1
