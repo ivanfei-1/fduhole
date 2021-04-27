@@ -243,13 +243,15 @@ class DiscussionsView(APIView):
 
     def post(self, request):
 
-        # 数据校验
         content = request.data.get('content')
         if not content.strip(): return Response({'msg': '内容不能为空！'}, status=status.HTTP_400_BAD_REQUEST)
-
-        tags = request.data.get('tags')
         is_folded = False
-        if len(tags) == 0: return Response({'msg': '标签不能为空'}, status=status.HTTP_400_BAD_REQUEST)
+        tags = request.data.get('tags')
+        if not tags:
+            tags = [{
+                'name': '默认',
+                'color': 'grey',
+            }]
         if len(tags) >  5: return Response({'msg': '标签不能多于5个'}, status=status.HTTP_400_BAD_REQUEST)
         for tag in tags:
             if len(tag['name'].strip()) >  8: return Response({'msg': '标签名不能超过8个字符'}, status=status.HTTP_400_BAD_REQUEST)
