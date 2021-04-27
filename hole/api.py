@@ -1,5 +1,6 @@
 from django.shortcuts import  get_object_or_404
 from django.contrib import auth
+from django.db.models import Q
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.hashers import make_password, check_password
 from django.http import JsonResponse, HttpResponse
@@ -482,3 +483,31 @@ class EmailView(APIView):
             f.write(email + ' ')
 
         return Response({'msg': '更改邮箱成功！'})
+
+class MessageView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        update = request.query_params.get('update')
+        if update: update = int(update)
+        else: update = 0
+
+        messages = Message.objects.filter(
+            Q(from_user__exact=request.user) | Q(to_user__exact=request.user)
+        ).filter(id__gt=update)
+
+        serializer = MessageSerializer(messages, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        from_user = request.user
+        to_user = get_object_or_404(User, username=request.data.get('to'))
+        content = request.data.get('content')
+        if not content: return Response({'msg': '内容不能为空！'}, status=status.HTTP_400_BAD_REQUEST)
+
+        message = Message(from_user=from_user, to_user=to_user, content=content)
+        message.save()
+
+        serializer = MessageSerializer(message)
+        return Response(serializer.data)

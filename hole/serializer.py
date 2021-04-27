@@ -35,7 +35,18 @@ class ReportSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer()
     favored_discussion = DiscussionSerializer(many=True)
-
     class Meta:
         model = UserProfile
         fields = '__all__'
+
+class MessageSerializer(serializers.ModelSerializer):
+    class UserSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = User
+            fields = ('username',)
+    from_user = UserSerializer()
+    to_user = UserSerializer()
+    class Meta:
+        model = Message
+        fields = '__all__'
+    
