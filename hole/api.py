@@ -307,21 +307,22 @@ class PostsView(APIView):
         if post_id:
             post_id = int(post_id)
             post = get_object_or_404(Post, pk=post_id)
+            if post.disabled: return Response({'msg': '该内容已被删除', 'code': -1})
             serializer = PostSerializer(post)
             return Response(serializer.data)
         elif search:
-            posts = Post.objects.filter(content__icontains=search).order_by('-date_created')
+            posts = Post.objects.filter(content__icontains=search, disabled__exact=False).order_by('-date_created')
         else:
             discussion_id = int(discussion_id)
             d = get_object_or_404(Discussion, pk=discussion_id)
     
             if order: 
                 order = int(order)
-                posts = d.post_set.order_by('date_created')[order:]
+                posts = d.post_set.order_by('date_created').filter(disabled__exact=False)[order:]
                 
             if page:
                 page = int(page)
-                posts = d.post_set.order_by('date_created')[(page - 1) * interval : page * interval]
+                posts = d.post_set.order_by('date_created').filter(disabled__exact=False)[(page - 1) * interval : page * interval]
 
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)

@@ -25,6 +25,7 @@ class Post(models.Model):
     reply_to = models.IntegerField(blank=True, null=True)
     discussion = models.ForeignKey(Discussion, on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True,db_index=True)
+    disabled = models.BooleanField(default=False)
 
     def __str__(self):
         return '#' + str(self.pk) + ' ' + self.content[:100]
@@ -33,6 +34,7 @@ class Report(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     reason = models.TextField()
     date_created = models.DateTimeField(auto_now_add=True,db_index=True)
+    dealed = models.BooleanField(default=False)
 
     def __str__(self):
         return '帖子#{}，{}'.format(self.post.pk, self.reason)
@@ -45,7 +47,6 @@ class UserProfile(models.Model):
     registered_from_app = models.BooleanField(default=False)
 
     def __str__(self):
-        # return self.user.__str__()
         return "{}".format(self.user.__str__())
     
 class Mapping(models.Model):
