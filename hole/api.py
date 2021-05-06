@@ -211,35 +211,27 @@ class DiscussionsView(APIView):
 
         if discussion_id:
             discussion = get_object_or_404(Discussion, pk=discussion_id)
+            if discussion.disabled: return Response({'msg': '该内容已被删除', 'code': -1})
             serializer = DiscussionSerializer(discussion)
             return Response(serializer.data)
 
         elif tag_name: # 默认按更新时间排序
             if order == 'last_created':
-                discussions = get_object_or_404(Tag, name=tag_name).discussion_set.order_by('-date_created')
+                discussions = get_object_or_404(Tag, name=tag_name).discussion_set.order_by('-date_created').filter(disabled__exact=False)
             else:
-                discussions = get_object_or_404(Tag, name=tag_name).discussion_set.order_by('-date_updated')
+                discussions = get_object_or_404(Tag, name=tag_name).discussion_set.order_by('-date_updated').filter(disabled__exact=False)
             
         else: 
             if not page: return Response({'msg': '需要提供page参数'}, status=status.HTTP_400_BAD_REQUEST)
             page = int(page)
             interval = settings.INTERVAL
             if order == 'last_created':
-                discussions = Discussion.objects.order_by('-date_created')[(page - 1) * interval : page * interval]
+                discussions = Discussion.objects.order_by('-date_created').filter(disabled__exact=False)[(page - 1) * interval : page * interval]
             else:
-                discussions = Discussion.objects.order_by('-date_updated')[(page - 1) * interval : page * interval]
-        
-        last_post_list = []
-        for discussion in discussions:
-            last_post = discussion.post_set.order_by('-date_created')[0]
-            last_post_list.append(last_post)
-        
-        last_posts = PostSerializer(last_post_list, many=True).data
-        response_data = DiscussionSerializer(discussions, many=True).data
+                discussions = Discussion.objects.order_by('-date_updated').filter(disabled__exact=False)[(page - 1) * interval : page * interval]
 
-        for i in range(len(response_data)):
-            response_data[i].update({'last_post': last_posts[i]})
-        return Response(response_data)
+        serializer = DiscussionSerializer(discussions, many=True)
+        return Response(serializer.data)
 
     def post(self, request):
 
@@ -286,7 +278,7 @@ class DiscussionsView(APIView):
         mapping.save()
 
         # save the discussion
-        discussion.first_post = post
+        # discussion.first_post = post
         discussion.save()
 
         serializer = DiscussionSerializer(discussion)

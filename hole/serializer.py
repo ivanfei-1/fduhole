@@ -19,13 +19,24 @@ class TagSerializer(serializers.ModelSerializer):
         fields = '__all__'
         depth = 1
 
+    # def to_representation(self, instance):
+    #     data = super().to_representation(instance)
+    #     data['count'] = instance.discussion_set.count()
+    #     return data
+
 class DiscussionSerializer(serializers.ModelSerializer):
-    first_post = PostSerializer()
     tag = TagSerializer(many=True)
     class Meta:
         model = Discussion
         fields = '__all__'
         depth = 1
+    
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['first_post'] = PostSerializer(instance.post_set.order_by('id')[0]).data
+        data['last_post'] = PostSerializer(instance.post_set.order_by('-id')[0]).data
+        # data['count'] = instance.post_set.count()
+        return data
 
 class ReportSerializer(serializers.ModelSerializer):
     class Meta:
@@ -40,12 +51,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class MessageSerializer(serializers.ModelSerializer):
+
     class UserSerializer(serializers.ModelSerializer):
         class Meta:
             model = User
             fields = ('username',)
+
     from_user = UserSerializer()
     to_user = UserSerializer()
+
     class Meta:
         model = Message
         fields = '__all__'

@@ -9,15 +9,16 @@ class Tag(models.Model):
         return self.name
 
 class Discussion(models.Model):
-    count = models.IntegerField()
+    count = models.IntegerField(db_index=True, default='0')
     tag = models.ManyToManyField(Tag, blank=True)
-    first_post = models.OneToOneField('Post', related_name='+', null=True, on_delete=models.SET_NULL) # on_delete null 需要进一步设置
+    # first_post = models.OneToOneField('Post', related_name='+', null=True, on_delete=models.SET_NULL) # on_delete null 需要进一步设置
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True,db_index=True)
     is_folded = models.BooleanField(default=False)
+    disabled = models.BooleanField(default=False)
     
     def __str__(self):
-        return '#' + str(self.pk) + ' ' + self.first_post.content[:100]
+        return '#' + str(self.pk) + ' ' + self.post_set.order_by('id')[0].content[:100]
 
 class Post(models.Model):
     content = models.TextField()
