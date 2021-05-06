@@ -135,6 +135,10 @@ STATIC_ROOT = '/home/shi/fduhole/fduhole/static/'
 
 ''' 第三方插件配置 '''
 
+SILKY_PYTHON_PROFILER = True
+SILKY_PYTHON_PROFILER_BINARY = True
+SILKY_PYTHON_PROFILER_RESULT_PATH = os.path.join(BASE_DIR, "profiles")
+
 # DRF Configs
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
