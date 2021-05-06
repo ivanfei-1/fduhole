@@ -57,9 +57,11 @@ INSTALLED_APPS = [
     'hole.apps.HoleConfig',
     'polls.apps.PollsConfig',
     'pafd.apps.PafdConfig',
+    'silk',
 ]
 
 MIDDLEWARE = [
+    'silk.middleware.SilkyMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
