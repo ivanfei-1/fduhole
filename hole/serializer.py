@@ -11,7 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = '__all__'
+        exclude = ('disabled',)
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,14 +28,13 @@ class DiscussionSerializer(serializers.ModelSerializer):
     tag = TagSerializer(many=True)
     class Meta:
         model = Discussion
-        fields = '__all__'
+        exclude = ('disabled',)
         depth = 1
     
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data['first_post'] = PostSerializer(instance.post_set.order_by('id')[0]).data
         data['last_post'] = PostSerializer(instance.post_set.order_by('-id')[0]).data
-        # data['count'] = instance.post_set.count()
         return data
 
 class ReportSerializer(serializers.ModelSerializer):

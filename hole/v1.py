@@ -84,10 +84,11 @@ class RegisterView(APIView):
             if not api_key in settings.API_KEY: 
                 return Response({}, status=status.HTTP_401_UNAUTHORIZED)
             
-            username = request.data.get('ID')
-            if not username: return Response({'msg': '需要提供用户 ID'}, status=status.HTTP_400_BAD_REQUEST)
+            # username = request.data.get('ID')
+            # if not username: return Response({'msg': '需要提供用户 ID'}, status=status.HTTP_400_BAD_REQUEST)
             if not email: return Response({'msg': '需要提供用户邮箱'}, status=status.HTTP_400_BAD_REQUEST)
-            
+            username = email[:11]
+
             domain = email[email.find('@')+1:]
             if not domain in settings.WHITELIST: return Response({'data': 3, 'msg': '邮箱不在白名单内！'})
             

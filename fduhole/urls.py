@@ -18,8 +18,9 @@ from django.urls import include, path, re_path
 from django.conf.urls import url
 
 urlpatterns = [
-    path('api/',include('hole.apiurls')),
-    path('v1/',include('hole.apiurls')),
+    path('api/',include('hole.v1urls')),
+    path('v1/',include('hole.v1urls')),
+    path('v2/',include('hole.v2urls')),
     path('pafd/',include('pafd.urls')),
     path('polls/', include('polls.urls')),
     path('admin/', admin.site.urls),
