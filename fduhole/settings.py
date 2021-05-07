@@ -57,11 +57,11 @@ INSTALLED_APPS = [
     'hole.apps.HoleConfig',
     'polls.apps.PollsConfig',
     'pafd.apps.PafdConfig',
-    'silk',
+    # 'silk',
 ]
 
 MIDDLEWARE = [
-    'silk.middleware.SilkyMiddleware',
+    # 'silk.middleware.SilkyMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -135,9 +135,9 @@ STATIC_ROOT = '/home/shi/fduhole/fduhole/static/'
 
 ''' 第三方插件配置 '''
 
-SILKY_PYTHON_PROFILER = True
-SILKY_PYTHON_PROFILER_BINARY = True
-SILKY_PYTHON_PROFILER_RESULT_PATH = os.path.join(BASE_DIR, "profiles")
+# SILKY_PYTHON_PROFILER = True
+# SILKY_PYTHON_PROFILER_BINARY = True
+# SILKY_PYTHON_PROFILER_RESULT_PATH = os.path.join(BASE_DIR, "profiles")
 
 # DRF Configs
 REST_FRAMEWORK = {
