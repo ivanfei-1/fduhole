@@ -94,9 +94,9 @@ class RegisterView(APIView):
                 if not domain in settings.WHITELIST: return Response({'data': 3, 'msg': '邮箱不在白名单内！'})
 
                 # 检查邮箱是否已注册
-                with open('conf/email.txt', 'r') as f:
-                    email_list = f.read().split(' ')
-                    if email in email_list: return Response({'msg': '该邮箱已被注册'}, status=status.HTTP_400_BAD_REQUEST)
+                # with open('conf/email.txt', 'r') as f:
+                #     email_list = f.read().split(' ')
+                #     if email in email_list: return Response({'msg': '该邮箱已被注册'}, status=status.HTTP_400_BAD_REQUEST)
 
                 # 记录邮箱
                 with open('conf/email.txt', 'a+') as f:
