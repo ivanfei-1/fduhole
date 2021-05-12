@@ -15,6 +15,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     def to_representation(self, post):
         data = super().to_representation(post)
+        if not self.context.get('user'): return data
         if post.discussion.name_mapping.filter(
             username__exact=self.context['user'].id, 
             anonyname__exact=post.username
@@ -29,11 +30,6 @@ class TagSerializer(serializers.ModelSerializer):
         model = Tag
         fields = '__all__'
         depth = 1
-
-    # def to_representation(self, instance):
-    #     data = super().to_representation(instance)
-    #     data['count'] = instance.discussion_set.count()
-    #     return data
 
 class DiscussionSerializer(serializers.ModelSerializer):
     tag = TagSerializer(many=True)

@@ -369,6 +369,41 @@ class PostsView(APIView):
 
         serializer = PostSerializer(post, context={'user': request.user})
         return Response(serializer.data)
+    
+    def put(self, request):
+        post_id = int(request.data.get('post_id'))
+        content = request.data.get('content')
+        reply_to = request.data.get('reply_to')
+
+        post = get_object_or_404(Post, id=post_id)
+        if post.discussion.name_mapping.filter(
+            username__exact=request.user.id, 
+            anonyname__exact=post.username
+        ) or request.user.is_staff: 
+
+            if content: post.content = content
+            if reply_to:
+                reply_to = int(reply_to)
+                if reply_to == 0: reply_to = None
+                post.reply_to = reply_to
+            post.save()
+            serializer = PostSerializer(post, context={'user': request.user})
+            return Response(serializer.data)
+        else:
+            return Response({'msg': '只有属主或管理员才有权操作'}, status=status.HTTP_403_FORBIDDEN)
+
+    def delete(self, request):
+        post_id = int(request.data.get('post_id'))
+        post = get_object_or_404(Post, id=post_id)
+        if post.discussion.name_mapping.filter(
+            username__exact=request.user.id, 
+            anonyname__exact=post.username
+        ) or request.user.is_staff: 
+            post.disabled = True
+            post.save()
+            return Response({'msg': '删除成功', 'code': 0})
+        else:
+            return Response({'msg': '只有属主或管理员才有权操作'}, status=status.HTTP_403_FORBIDDEN)
 
 class TagsView(APIView):
     permission_classes = [IsAuthenticated]
@@ -460,7 +495,7 @@ class UserProfileView(APIView):
     def get(self, request):
         username = request.user.username 
         profile = get_object_or_404(User, username=username).profile
-        serializer = UserProfileSerializer(profile)
+        serializer = UserProfileSerializer(profile, context={'user': request.user})
         return Response(serializer.data)
 
     def put(self, request):
