@@ -13,6 +13,17 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         exclude = ('disabled',)
 
+    def to_representation(self, post):
+        data = super().to_representation(post)
+        if post.discussion.name_mapping.filter(
+            username__exact=self.context['user'].id, 
+            anonyname__exact=post.username
+        ):
+            data['is_me'] = True
+        else:
+            data['is_me'] = False
+        return data
+
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag

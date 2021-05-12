@@ -312,7 +312,7 @@ class PostsView(APIView):
             post_id = int(post_id)
             post = get_object_or_404(Post, pk=post_id)
             if post.disabled: return Response({'msg': '该内容已被删除', 'code': -1})
-            serializer = PostSerializer(post)
+            serializer = PostSerializer(post, context={'user': request.user})
             return Response(serializer.data)
         elif search:
             posts = Post.objects.filter(content__icontains=search, disabled__exact=False).order_by('-date_created')
@@ -328,7 +328,7 @@ class PostsView(APIView):
                 page = int(page)
                 posts = d.post_set.order_by('date_created').filter(disabled__exact=False)[(page - 1) * interval : page * interval]
 
-        serializer = PostSerializer(posts, many=True)
+        serializer = PostSerializer(posts, many=True, context={'user': request.user})
         return Response(serializer.data)
 
     def post(self, request):
@@ -367,15 +367,26 @@ class PostsView(APIView):
         discussion.count = discussion.count + 1
         discussion.save()
 
-        serializer = PostSerializer(post)
+        serializer = PostSerializer(post, context={'user': request.user})
         return Response(serializer.data)
 
 class TagsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        # name = request.query_params.get('name')
-        tags = Tag.objects.all()
+        name = request.query_params.get('name')
+        search = request.query_params.get('search')
+
+        if name:
+            tag = get_object_or_404(Tag, name=name)
+            serializer = TagSerializer(tag)
+            return Response(serializer.data)
+        elif search:
+            tags = Tag.objects.filter(name__icontains=search)
+        else:
+            tags = Tag.objects.all()
+            
+        tags = tags.order_by('-count')
         serializer = TagSerializer(tags, many=True)
         return Response(serializer.data)
 
