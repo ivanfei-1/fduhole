@@ -31,12 +31,13 @@ class RegisterView(APIView):
         username = request.query_params.get('username')
         email = request.query_params.get('email')
         usage = request.query_params.get('usage')
-        if not usage: usage = 'register'
 
         if username and email:
 
             if usage == 'change_password':
                 if not User.objects.filter(username=username): return Response({'msg': '用户不存在！'}, status=status.HTTP_404_NOT_FOUND)
+                user = User.objects.get(username=username)
+                if not check_password(email, user.profile.encrypted_email): return Response({'msg': '请使用自己的邮箱'}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 if User.objects.filter(username=username): return Response({'data': 1, 'msg': '该用户名已注册！'})
 
@@ -71,6 +72,7 @@ class RegisterView(APIView):
             #         return Response({'data': 2, 'msg': '该邮箱已注册！'})
             return Response({'data': 0, 'msg': '该邮箱未注册！'})
 
+        return Response({}, status=status.HTTP_400_BAD_REQUEST)
        
     def post(self, request):
         # 获取数据

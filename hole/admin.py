@@ -27,8 +27,8 @@ def linkify(field_name):
 class PostInline(admin.TabularInline):
     model = Post
 
-class UserProfileInline(admin.TabularInline):
-    model = UserProfile
+# class UserProfileInline(admin.TabularInline):
+#     model = UserProfile
 
 @admin.register(Discussion)
 class DiscussionAdmin(admin.ModelAdmin):
@@ -51,3 +51,4 @@ class PostAdmin(admin.ModelAdmin):
 admin.site.register(Mapping)
 admin.site.register(Tag)
 admin.site.register(Report)
+admin.site.register(UserProfile)

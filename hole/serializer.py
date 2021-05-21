@@ -15,6 +15,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     def to_representation(self, post):
         data = super().to_representation(post)
+        if post.disabled: return None
         if not self.context.get('user'): return data
         if post.discussion.name_mapping.filter(
             username__exact=self.context['user'].id, 
@@ -39,6 +40,7 @@ class DiscussionSerializer(serializers.ModelSerializer):
         depth = 1
     
     def to_representation(self, instance):
+        if instance.disabled: return None
         data = super().to_representation(instance)
         data['first_post'] = PostSerializer(instance.post_set.order_by('id')[0]).data
         data['last_post'] = PostSerializer(instance.post_set.order_by('-id')[0]).data
