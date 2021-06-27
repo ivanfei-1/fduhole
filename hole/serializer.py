@@ -3,22 +3,26 @@ from django.contrib.auth.models import User
 
 from .models import *
 
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'is_active', 'is_staff', 'is_superuser')
 
+
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        exclude = ('disabled',)
+        exclude = ('disabled', 'delete_reason')
 
     def to_representation(self, post):
         data = super().to_representation(post)
-        if post.disabled: return None
-        if not self.context.get('user'): return data
+        if post.disabled:
+            data['content'] = post.delete_reason
+        if not self.context.get('user'):
+            return data
         if post.discussion.name_mapping.filter(
-            username__exact=self.context['user'].id, 
+            username__exact=self.context['user'].id,
             anonyname__exact=post.username
         ):
             data['is_me'] = True
@@ -26,37 +30,47 @@ class PostSerializer(serializers.ModelSerializer):
             data['is_me'] = False
         return data
 
+
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = '__all__'
         depth = 1
 
+
 class DiscussionSerializer(serializers.ModelSerializer):
     tag = TagSerializer(many=True)
+
     class Meta:
         model = Discussion
         exclude = ('disabled',)
         depth = 1
-    
+
     def to_representation(self, instance):
-        if instance.disabled: return None
+        if instance.disabled:
+            return None
         data = super().to_representation(instance)
-        data['first_post'] = PostSerializer(instance.post_set.order_by('id')[0]).data
-        data['last_post'] = PostSerializer(instance.post_set.order_by('-id')[0]).data
+        data['first_post'] = PostSerializer(
+            instance.post_set.order_by('id')[0]).data
+        data['last_post'] = PostSerializer(
+            instance.post_set.order_by('-id')[0]).data
         return data
+
 
 class ReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Report
         fields = '__all__'
 
+
 class UserProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer()
     favored_discussion = DiscussionSerializer(many=True)
+
     class Meta:
         model = UserProfile
         fields = '__all__'
+
 
 class MessageSerializer(serializers.ModelSerializer):
 
@@ -71,4 +85,3 @@ class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
         fields = '__all__'
-    
