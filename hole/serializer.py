@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 
 from .models import *
+from django.conf import settings
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -46,14 +47,16 @@ class DiscussionSerializer(serializers.ModelSerializer):
         exclude = ('disabled',)
         depth = 1
 
-    def to_representation(self, instance):
-        if instance.disabled:
+    def to_representation(self, d):
+        if d.disabled:
             return None
-        data = super().to_representation(instance)
+        data = super().to_representation(d)
+        data['posts'] = PostSerializer(d.post_set.order_by('date_created').filter(
+            disabled__exact=False)[:settings.INTERVAL], many=True).data
         data['first_post'] = PostSerializer(
-            instance.post_set.order_by('id')[0]).data
+            d.post_set.order_by('id')[0]).data
         data['last_post'] = PostSerializer(
-            instance.post_set.order_by('-id')[0]).data
+            d.post_set.order_by('-id')[0]).data
         return data
 
 
