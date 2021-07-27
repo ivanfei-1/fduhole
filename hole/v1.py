@@ -237,9 +237,13 @@ class DiscussionsView(APIView):
             page = int(page)
             interval = settings.INTERVAL
             if order == 'last_created':
-                discussions = Discussion.objects.order_by('-date_created').filter(disabled__exact=False)[(page - 1) * interval : page * interval]
+                discussions = Discussion.objects.order_by('-date_created').filter(disabled__exact=False)
             else:
-                discussions = Discussion.objects.order_by('-date_updated').filter(disabled__exact=False)[(page - 1) * interval : page * interval]
+                discussions = Discussion.objects.order_by('-date_updated').filter(disabled__exact=False)
+            if len(discussions) < page * interval:
+                discussions = []
+            else:
+                discussions = discussions[(page - 1) * interval : page * interval]
 
         serializer = DiscussionSerializer(discussions, many=True)
         return Response(serializer.data)
@@ -325,7 +329,12 @@ class PostsView(APIView):
                 
             if page:
                 page = int(page)
-                posts = d.post_set.order_by('date_created').filter(disabled__exact=False)[(page - 1) * interval : page * interval]
+                posts = d.post_set.order_by('date_created').filter(disabled__exact=False)
+                if len(posts) < page * interval:
+                    posts = [] 
+                else:
+                    posts = posts[(page - 1) * interval : page * interval]
+                    
 
         serializer = PostSerializer(posts, many=True, context={'user': request.user})
         return Response(serializer.data)
