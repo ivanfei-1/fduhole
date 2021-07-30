@@ -302,7 +302,7 @@ class PostsView(APIView):
     def get(self, request, *args, **kwargs):
         post_id = request.query_params.get('post_id')
         discussion_id = request.query_params.get('id')
-        page = request.query_params.get('page')
+        page = request.query_params.get('page') # Set page to -1 to get all posts
         order = request.query_params.get('order')
         search = request.query_params.get('search')
         interval = settings.INTERVAL
@@ -325,7 +325,10 @@ class PostsView(APIView):
                 
             if page:
                 page = int(page)
-                posts = d.post_set.order_by('date_created').filter(disabled__exact=False)[(page - 1) * interval : page * interval]
+                if page == -1:
+                    posts = d.post_set.order_by('date_created').filter(disabled__exact=False)
+                else:
+                    posts = d.post_set.order_by('date_created').filter(disabled__exact=False)[(page - 1) * interval : page * interval]
 
         serializer = PostSerializer(posts, many=True, context={'user': request.user})
         return Response(serializer.data)
