@@ -26,7 +26,7 @@ SECRET_KEY = secret_key
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['localhost', 'www.fduhole.tk','127.0.0.1']
+ALLOWED_HOSTS = ['localhost', 'www.fduhole.tk', '127.0.0.1']
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -149,7 +149,7 @@ REST_FRAMEWORK = {
 }
 
 SWAGGER_SETTINGS = {
-   'USE_SESSION_AUTH': False
+    'USE_SESSION_AUTH': False
 }
 
 # django-cors-headers
@@ -198,18 +198,18 @@ LOGGING = {
     },
 }
 
-LOGIN_REDIRECT_URL      = '/hole/'
-LOGIN_URL               = '/hole/login/'
-LOGOUT_REDIRECT_URL     = '/'
+LOGIN_REDIRECT_URL = '/hole/'
+LOGIN_URL = '/hole/login/'
+LOGOUT_REDIRECT_URL = '/'
 
-EMAIL_HOST              = 'smtp.gmail.com'
-EMAIL_PORT              = '587'
-EMAIL_HOST_USER         = 'fduhole@gmail.com'
-EMAIL_HOST_PASSWORD     = email_password
-EMAIL_USE_TLS           = True
-EMAIL_USE_SSL           = False
-DEFAULT_FROM_EMAIL      = 'fduhole@gmail.com'
-EMAIL_BACKEND           = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = '587'
+EMAIL_HOST_USER = 'fduhole@gmail.com'
+EMAIL_HOST_PASSWORD = email_password
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+DEFAULT_FROM_EMAIL = 'fduhole@gmail.com'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 GITHUB_TOKEN = github_token
 
@@ -217,8 +217,9 @@ API_KEY = api_key
 
 INTERVAL = 10
 
-WHITELIST = ['fudan.edu.cn']
+WHITELIST = ['fudan.edu.cn', 'm.fudan.edu.cn']
 
 ADMIN_MAIL_LIST = ['fduhole@gmail.com', 'danxi_dev@protonmail.com']
 
-COLORLIST = ('red', 'pink', 'purple', 'deep-purple', 'indigo', 'blue', 'light-blue', 'cyan', 'teal', 'green', 'light-green', 'lime', 'yellow', 'amber', 'orange', 'deep-orange', 'brown', 'blue-grey', 'grey')
+COLORLIST = ('red', 'pink', 'purple', 'deep-purple', 'indigo', 'blue', 'light-blue', 'cyan', 'teal', 'green',
+             'light-green', 'lime', 'yellow', 'amber', 'orange', 'deep-orange', 'brown', 'blue-grey', 'grey')
