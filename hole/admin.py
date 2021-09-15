@@ -58,4 +58,10 @@ class PostAdmin(admin.ModelAdmin):
 admin.site.register(Mapping)
 admin.site.register(Tag)
 admin.site.register(Report)
-admin.site.register(UserProfile)
+# admin.site.register(UserProfile)
+
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    search_fields = ['user__username']
+    fields = ('user', 'favored_discussion', 'encrypted_email', 'has_input_email', 'registered_from_app', 'ban_post_permanent', 'ban_post_until')

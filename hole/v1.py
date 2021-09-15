@@ -1,4 +1,4 @@
-from django.shortcuts import  get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.contrib import auth
 from django.db.models import Q
 from django.contrib.auth.models import User, Group
@@ -10,7 +10,7 @@ from django.core.mail import send_mail
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 
@@ -20,6 +20,7 @@ from .serializer import *
 import logging, base64, httpx, random
 from datetime import datetime
 
+
 class RegisterView(APIView):
     '''
     URL: register/
@@ -27,7 +28,7 @@ class RegisterView(APIView):
     '''
 
     def get(self, request):
-        
+
         username = request.query_params.get('username')
         email = request.query_params.get('email')
         usage = request.query_params.get('usage')
@@ -36,17 +37,18 @@ class RegisterView(APIView):
         if username and email:
 
             if usage == 'change_password':
-                if not User.objects.filter(username=username): return Response({'msg': '用户不存在！'}, status=status.HTTP_404_NOT_FOUND)
+                if not User.objects.filter(username=username): return Response({'msg': '用户不存在！'},
+                                                                               status=status.HTTP_404_NOT_FOUND)
             else:
                 if User.objects.filter(username=username): return Response({'data': 1, 'msg': '该用户名已注册！'})
 
-                # 检查邮箱是否已注册
-                # for u in User.objects.all():
-                #     if check_password(email, u.first_name):
-                #         return Response({'data': 2, 'msg': '该邮箱已注册！'})
+            # 检查邮箱是否已注册
+            # for u in User.objects.all():
+            #     if check_password(email, u.first_name):
+            #         return Response({'data': 2, 'msg': '该邮箱已注册！'})
 
             # 检查邮箱是否在白名单内
-            domain = email[email.find('@')+1:]
+            domain = email[email.find('@') + 1:]
             if not domain in settings.WHITELIST: return Response({'data': 3, 'msg': '邮箱不在白名单内！'})
 
             code = random.randint(100000, 999999)
@@ -57,12 +59,13 @@ class RegisterView(APIView):
             # 检查用户名是否已注册
             if User.objects.filter(username=username):
                 return Response({'data': 1, 'msg': '该用户名已注册！'})
-            else: return Response({'data': 0, 'msg': '该用户名未注册！'})
+            else:
+                return Response({'data': 0, 'msg': '该用户名未注册！'})
 
         if email:
             # 检查邮箱是否在白名单内
             # logging.error('开始检查邮箱')
-            domain = email[email.find('@')+1:]
+            domain = email[email.find('@') + 1:]
             if not domain in settings.WHITELIST: return Response({'data': 3, 'msg': '邮箱不在白名单内！'})
             # 检查邮箱是否已注册
             # for u in User.objects.all():
@@ -71,7 +74,6 @@ class RegisterView(APIView):
             #         return Response({'data': 2, 'msg': '该邮箱已注册！'})
             return Response({'data': 0, 'msg': '该邮箱未注册！'})
 
-       
     def post(self, request):
         # 获取数据
         username = request.data.get('username')
@@ -81,16 +83,16 @@ class RegisterView(APIView):
         api_key = request.data.get('api-key')
 
         if not email: return Response({'msg': '需要提供用户邮箱'}, status=status.HTTP_400_BAD_REQUEST)
-            
+
         if api_key:
-            if not api_key in settings.API_KEY: 
+            if not api_key in settings.API_KEY:
                 return Response({}, status=status.HTTP_401_UNAUTHORIZED)
 
             username = email[:11]
 
-            if not User.objects.filter(username=username): # 若未注册，创建用户
+            if not User.objects.filter(username=username):  # 若未注册，创建用户
                 # 检查邮箱是否在白名单内
-                domain = email[email.find('@')+1:]
+                domain = email[email.find('@') + 1:]
                 if not domain in settings.WHITELIST: return Response({'data': 3, 'msg': '邮箱不在白名单内！'})
 
                 # 检查邮箱是否已注册
@@ -122,23 +124,24 @@ class RegisterView(APIView):
             # 检查用户名是否已注册
             if User.objects.filter(username=username):
                 return Response({'data': 1, 'msg': '该用户名已注册！'})
-            
+
             # 检查邮箱是否在白名单内
-            domain = email[email.find('@')+1:]
+            domain = email[email.find('@') + 1:]
             if not domain in settings.WHITELIST: return Response({'data': 3, 'msg': '邮箱不在白名单内！'})
 
             # 检查邮箱是否已注册
             with open('conf/email.txt', 'r') as f:
                 email_list = f.read().split(' ')
                 if email in email_list: return Response({'msg': '该邮箱已被注册'}, status=status.HTTP_400_BAD_REQUEST)
-            
+
             # 检查验证码
             try:
                 code = int(code)
             except:
                 return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
-            if not cache.get(username) == code: return Response({'data': 4, 'msg': '验证码错误'}, status=status.HTTP_401_UNAUTHORIZED)
+            if not cache.get(username) == code: return Response({'data': 4, 'msg': '验证码错误'},
+                                                                status=status.HTTP_401_UNAUTHORIZED)
 
             with open('conf/email.txt', 'a+') as f:
                 f.write(email + ' ')
@@ -168,8 +171,10 @@ class RegisterView(APIView):
         except:
             return Response({'msg': '验证码错误'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        try: user = User.objects.get(username=username)
-        except: return Response({'msg': '用户不存在！'}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            user = User.objects.get(username=username)
+        except:
+            return Response({'msg': '用户不存在！'}, status=status.HTTP_404_NOT_FOUND)
 
         user.set_password(password)
         user.save()
@@ -178,11 +183,12 @@ class RegisterView(APIView):
         old_token.delete()
         Token.objects.create(user=user)
         new_token = Token.objects.get(user=user)
-        
+
         return Response({
             'username': username,
             'token': new_token.key
         })
+
 
 class LoginView(APIView):
     '''
@@ -194,23 +200,29 @@ class LoginView(APIView):
     GET: 登出
         Args: 
     '''
+
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
         user = auth.authenticate(username=username, password=password)
         if user is not None:
-            auth.login(request, user)
-            return Response({'msg': '%s 登录成功！' % username})
+            if request.user.profile.ban_visit_permanent:
+                return Response({'msg': '您的树洞账号已被永久封禁！'}, status=status.HTTP_401_UNAUTHORIZED)
+            elif request.user.profile.ban_visit_until < datetime.now():
+                return Response({'msg': '您的树洞账号在' + str(request.user.profile.visit_until) + '前被封禁！'},status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                auth.login(request, user)
+                return Response({'msg': '%s 登录成功！' % username})
         else:
             return Response({'msg': '用户名或密码错误！'}, status=status.HTTP_401_UNAUTHORIZED)
-    
+
     def get(self, request):
-            username = request.user.username
-            auth.logout(request)
-            return Response({'msg': '%s 已登出！' % username})
+        username = request.user.username
+        auth.logout(request)
+        return Response({'msg': '%s 已登出！' % username})
+
 
 class DiscussionsView(APIView):
-
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
@@ -226,25 +238,39 @@ class DiscussionsView(APIView):
             serializer = DiscussionSerializer(discussion)
             return Response(serializer.data)
 
-        elif tag_name: # 默认按更新时间排序
+        elif tag_name:  # 默认按更新时间排序
             if order == 'last_created':
-                discussions = get_object_or_404(Tag, name=tag_name).discussion_set.order_by('-date_created').filter(disabled__exact=False)
+                discussions = get_object_or_404(Tag, name=tag_name).discussion_set.order_by('-date_created').filter(
+                    disabled__exact=False)
             else:
-                discussions = get_object_or_404(Tag, name=tag_name).discussion_set.order_by('-date_updated').filter(disabled__exact=False)
-            
-        else: 
+                discussions = get_object_or_404(Tag, name=tag_name).discussion_set.order_by('-date_updated').filter(
+                    disabled__exact=False)
+
+        else:
             if not page: return Response({'msg': '需要提供page参数'}, status=status.HTTP_400_BAD_REQUEST)
             page = int(page)
             interval = settings.INTERVAL
             if order == 'last_created':
-                discussions = Discussion.objects.order_by('-date_created').filter(disabled__exact=False)[(page - 1) * interval : page * interval]
+                discussions = Discussion.objects.order_by('-date_created').filter(disabled__exact=False)[
+                              (page - 1) * interval: page * interval]
             else:
-                discussions = Discussion.objects.order_by('-date_updated').filter(disabled__exact=False)[(page - 1) * interval : page * interval]
+                discussions = Discussion.objects.order_by('-date_updated').filter(disabled__exact=False)[
+                              (page - 1) * interval: page * interval]
 
         serializer = DiscussionSerializer(discussions, many=True)
         return Response(serializer.data)
 
     def post(self, request):
+
+        # Generally, if the User does not (yet) have a profile, he or she isn't banned.
+        try:
+            if request.user.profile.ban_post_permanent:
+                return Response({'msg': '您不被允许发帖'}, status=status.HTTP_401_UNAUTHORIZED)
+            elif request.user.profile.ban_post_until < datetime.now():
+                return Response({'msg': '您在' + str(request.user.profile.ban_post_until) + '前不被允许发帖'},
+                                status=status.HTTP_401_UNAUTHORIZED)
+        except:
+            pass
 
         content = request.data.get('content')
         if not content.strip(): return Response({'msg': '内容不能为空！'}, status=status.HTTP_400_BAD_REQUEST)
@@ -255,17 +281,18 @@ class DiscussionsView(APIView):
                 'name': '默认',
                 'color': 'grey',
             }]
-        if len(tags) >  5: return Response({'msg': '标签不能多于5个'}, status=status.HTTP_400_BAD_REQUEST)
+        if len(tags) > 5: return Response({'msg': '标签不能多于5个'}, status=status.HTTP_400_BAD_REQUEST)
         for tag in tags:
-            if len(tag['name'].strip()) >  8: return Response({'msg': '标签名不能超过8个字符'}, status=status.HTTP_400_BAD_REQUEST)
+            if len(tag['name'].strip()) > 8: return Response({'msg': '标签名不能超过8个字符'}, status=status.HTTP_400_BAD_REQUEST)
             if not tag['name'].strip(): return Response({'msg': '标签名不能为空'}, status=status.HTTP_400_BAD_REQUEST)
-            if not tag['color'] in settings.COLORLIST: return Response({'msg': '标签颜色不符合规范'}, status=status.HTTP_400_BAD_REQUEST)
-            if tag['name'][0] == '*': is_folded = True 
-    
+            if not tag['color'] in settings.COLORLIST: return Response({'msg': '标签颜色不符合规范'},
+                                                                       status=status.HTTP_400_BAD_REQUEST)
+            if tag['name'][0] == '*': is_folded = True
+
         # 创建discussion， 创建tag并添加至discussion
-        discussion = Discussion(count=0, is_folded = is_folded)
+        discussion = Discussion(count=0, is_folded=is_folded)
         discussion.save()
-        
+
         # 增/改 tags 并绑定至 discussion
         for tag in tags:
             new_tag = Tag.objects.filter(name=tag['name'])
@@ -274,7 +301,8 @@ class DiscussionsView(APIView):
                 new_tag.count = new_tag.count + 1
                 new_tag.save()
             else:
-                new_tag = Tag(name=tag['name'], count=1, color=tag['color'])  # tag 的颜色为随机的 material design 标准主色   eg.'red'
+                new_tag = Tag(name=tag['name'], count=1,
+                              color=tag['color'])  # tag 的颜色为随机的 material design 标准主色   eg.'red'
                 new_tag.save()
 
             discussion.tag.add(new_tag)
@@ -295,14 +323,14 @@ class DiscussionsView(APIView):
         serializer = DiscussionSerializer(discussion)
         return Response(serializer.data)
 
-class PostsView(APIView):
 
+class PostsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         post_id = request.query_params.get('post_id')
         discussion_id = request.query_params.get('id')
-        page = request.query_params.get('page') # Set page to -1 to get all posts
+        page = request.query_params.get('page')  # Set page to -1 to get all posts
         order = request.query_params.get('order')
         search = request.query_params.get('search')
         interval = settings.INTERVAL
@@ -318,17 +346,18 @@ class PostsView(APIView):
         else:
             discussion_id = int(discussion_id)
             d = get_object_or_404(Discussion, pk=discussion_id)
-    
-            if order: 
+
+            if order:
                 order = int(order)
                 posts = d.post_set.order_by('date_created').filter(disabled__exact=False)[order:]
-                
+
             if page:
                 page = int(page)
                 if page == -1:
                     posts = d.post_set.order_by('date_created').filter(disabled__exact=False)
                 else:
-                    posts = d.post_set.order_by('date_created').filter(disabled__exact=False)[(page - 1) * interval : page * interval]
+                    posts = d.post_set.order_by('date_created').filter(disabled__exact=False)[
+                            (page - 1) * interval: page * interval]
 
         serializer = PostSerializer(posts, many=True, context={'user': request.user})
         return Response(serializer.data)
@@ -338,13 +367,23 @@ class PostsView(APIView):
         content = request.data.get('content')
         discussion_id = request.data.get('discussion_id')
         post_id = request.data.get('post_id')
-        
+        user = request.user
+
         if not content: return Response({'msg': '内容不能为空！'}, status=status.HTTP_400_BAD_REQUEST)
         if not discussion_id: return Response({'msg': 'discussion id 不能为空！'}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Generally, if the User does not (yet) have a profile, he or she isn't banned.
+        try:
+            if user.profile.ban_post_permanent:
+                return Response({'msg': '您不被允许发帖'}, status=status.HTTP_401_UNAUTHORIZED)
+            elif user.profile.ban_post_until < datetime.now():
+                return Response({'msg': '您在' + str(user.profile.ban_post_until) + '前不被允许发帖'},
+                                status=status.HTTP_401_UNAUTHORIZED)
+        except:
+            pass
+
         discussion = get_object_or_404(Discussion, pk=discussion_id)
         mappings = discussion.name_mapping
-        user = request.user
         realname = user.username
 
         try:
@@ -361,16 +400,17 @@ class PostsView(APIView):
                     break
 
         reply_to = None
-        if post_id : reply_to = post_id
+        if post_id: reply_to = post_id
 
         post = Post(username=anonyname, content=content, discussion_id=discussion_id, reply_to=reply_to)
         post.save()
-        
+
         discussion.count = discussion.count + 1
         discussion.save()
 
         serializer = PostSerializer(post, context={'user': request.user})
         return Response(serializer.data)
+
 
 class TagsView(APIView):
     permission_classes = [IsAuthenticated]
@@ -392,6 +432,7 @@ class TagsView(APIView):
         serializer = TagSerializer(tags, many=True)
         return Response(serializer.data)
 
+
 class ImagesView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -406,7 +447,8 @@ class ImagesView(APIView):
         date = datetime_str[:10]
         time = datetime_str[11:]
         mime = img.name.split('.')[-1]
-        url = 'https://api.github.com/repos/fduhole/web/contents/{date}/{time}.{mime}'.format(date=date, time=time, mime=mime)
+        url = 'https://api.github.com/repos/fduhole/web/contents/{date}/{time}.{mime}'.format(date=date, time=time,
+                                                                                              mime=mime)
 
         headers = {
             'Authorization': 'token {}'.format(settings.GITHUB_TOKEN)
@@ -421,13 +463,14 @@ class ImagesView(APIView):
         r = httpx.put(url, headers=headers, json=body)
 
         if r.status_code == 201:
-            url = 'https://cdn.jsdelivr.net/gh/fduhole/web@img/{date}/{time}.{mime}'.format(date=date, time=time, mime=mime)
+            url = 'https://cdn.jsdelivr.net/gh/fduhole/web@img/{date}/{time}.{mime}'.format(date=date, time=time,
+                                                                                            mime=mime)
             return Response({'url': url, 'msg': '图片上传成功!'})
         else:
             return Response(r.json(), status=status.HTTP_400_BAD_REQUEST)
 
-class ReportView(APIView):
 
+class ReportView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -435,38 +478,40 @@ class ReportView(APIView):
         reason = request.data.get('reason')
         if not reason: return Response({'msg': '举报原因不能为空！'}, status=status.HTTP_400_BAD_REQUEST)
 
-        try: post = Post.objects.get(pk=post_id)
-        except: return Response({'msg': '举报帖子不能为空！'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            post = Post.objects.get(pk=post_id)
+        except:
+            return Response({'msg': '举报帖子不能为空！'}, status=status.HTTP_400_BAD_REQUEST)
 
         report = Report(post=post, reason=reason)
         report.save()
 
         try:
             send_mail(
-                    subject='树洞举报#{}'.format(post_id),
-                    message='用户举报了帖子#{} \r\n原因是：{} \r\n帖子的内容为：{}'.format(post_id, reason, post.content),
-                    from_email='fduhole@gmail.com',
-                    recipient_list=settings.ADMIN_MAIL_LIST,
-                    fail_silently=False,
-                )
+                subject='树洞举报#{}'.format(post_id),
+                message='用户举报了帖子#{} \r\n原因是：{} \r\n帖子的内容为：{}'.format(post_id, reason, post.content),
+                from_email='fduhole@gmail.com',
+                recipient_list=settings.ADMIN_MAIL_LIST,
+                fail_silently=False,
+            )
         except SMTPException as e:
             return Response({'msg': '{}'.format(e)}, status=status.HTTP_500_INTERAL_SERVER_ERROR)
-        
+
         serializer = ReportSerializer(report)
         return Response(serializer.data)
 
-class UserProfileView(APIView):
 
+class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        username = request.user.username 
+        username = request.user.username
         profile = get_object_or_404(User, username=username).profile
         serializer = UserProfileSerializer(profile)
         return Response(serializer.data)
 
     def put(self, request):
-        username = request.user.username 
+        username = request.user.username
         mode = request.data.get('mode')
         if not mode: return Response({'msg': 'mode 未提供'}, status=status.HTTP_400_BAD_REQUEST)
         profile = get_object_or_404(User, username=username).profile
@@ -479,21 +524,21 @@ class UserProfileView(APIView):
                 profile.favored_discussion.add(favored_discussion)
             if mode == 'deleteFavoredDiscussion':
                 profile.favored_discussion.remove(favored_discussion)
-            
+
         profile.save()
         serializer = UserProfileSerializer(profile)
         return Response(serializer.data)
 
-class EmailView(APIView):
 
+class EmailView(APIView):
     permission_classes = [IsAuthenticated]
-    
+
     def post(self, request):
-        username = request.user.username 
+        username = request.user.username
         profile = get_object_or_404(User, username=username).profile
         email = request.data.get('email')
 
-        if profile.has_input_email : return Response({}, status=status.HTTP_400_BAD_REQUEST)
+        if profile.has_input_email: return Response({}, status=status.HTTP_400_BAD_REQUEST)
         if not check_password(email, profile.encrypted_email): return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
         profile.has_input_email = True
@@ -504,14 +549,16 @@ class EmailView(APIView):
 
         return Response({'msg': '更改邮箱成功！'})
 
-class MessageView(APIView):
 
+class MessageView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         update = request.query_params.get('update')
-        if update: update = int(update)
-        else: update = 0
+        if update:
+            update = int(update)
+        else:
+            update = 0
 
         messages = Message.objects.filter(
             Q(from_user__exact=request.user) | Q(to_user__exact=request.user)
@@ -531,3 +578,50 @@ class MessageView(APIView):
 
         serializer = MessageSerializer(message)
         return Response(serializer.data)
+
+
+class PostsAdminView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def post(self, request):
+
+        content = request.data.get('content')  # Only used when [operation] is "modify"
+        discussion_id = request.data.get('discussion_id')
+        post_id = request.data.get('post_id')
+        operation = request.data.get(
+            'operation')  # Available options: "modify", "disable", "get_user", "disable_discussion"
+        #Add option: "ban_user_permantly", "ban_user_tempotaty"
+
+        if not operation: return Response({'msg': 'operation不能为空！'}, status=status.HTTP_400_BAD_REQUEST)
+        if not discussion_id: return Response({'msg': 'discussion id 不能为空！'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if operation == "modify":
+            if not content: return Response({'msg': 'modify content不能为空！'}, status=status.HTTP_400_BAD_REQUEST)
+
+        discussion = get_object_or_404(Discussion, pk=discussion_id)
+        if operation != "disable_discussion":
+            if not post_id: return Response({'msg': 'post_id不能为空！'}, status=status.HTTP_400_BAD_REQUEST)
+            post_id = int(post_id)
+            post = get_object_or_404(Post, pk=post_id)
+
+        if operation == "get_user":
+            try:
+                mapping = discussion.name_mapping.get(anonyname=post.username)
+                username = mapping.username
+                return Response({'username': str(username.username), 'email': str(username.email)},
+                                status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        elif operation == "disable":
+            post.disabled = True
+            post.save()
+            discussion.count = discussion.count - 1
+            discussion.save()
+        elif operation == "disable_discussion":
+            discussion.disabled = True
+            discussion.save()
+        elif operation == "modify":
+            post.content = content
+            post.save()
+
+        return Response(status=status.HTTP_202_ACCEPTED)

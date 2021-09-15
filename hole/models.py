@@ -54,6 +54,10 @@ class UserProfile(models.Model):
     encrypted_email = models.CharField(max_length=200, blank=True)
     has_input_email = models.BooleanField(default=False)
     registered_from_app = models.BooleanField(default=False)
+    ban_visit_permanent = models.BooleanField(default=False)
+    ban_visit_until = models.BooleanField(null=True, blank=True)
+    ban_post_permanent = models.BooleanField(default=False)
+    ban_post_until = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return "{}".format(self.user.__str__())

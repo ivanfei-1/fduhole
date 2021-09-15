@@ -13,4 +13,5 @@ urlpatterns = [
     path('reports/', v1.ReportView.as_view()),
     path('email/', v1.EmailView.as_view()),
     path('message/', v1.MessageView.as_view()),
+    path('admin/', v1.PostsAdminView.as_view()),
 ]
